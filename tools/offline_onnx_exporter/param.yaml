@@ -1,0 +1,123 @@
+# Deployment parameters for BeyondMimic (whole_body_tracking) motion tracking policies.
+#
+# Everything the policy itself defines lives in the ONNX metadata and MUST NOT be duplicated
+# here: joint_names, joint_stiffness, joint_damping, default_joint_pos, action_scale,
+# anchor_body_name, body_names, observation_names, observation_history_lengths. The controller
+# reads them from the model and refuses to start if they are missing or inconsistent with
+# config.yaml. Only deployment-side knobs belong in this file.
+HumanoidRobotCfg:
+  # Startup loads only this pair (DanceLibrary-style). ResolveConfiguredPath maps
+  #   policy_dir: "/policy/<name>"     -> <controller>/policy/<name>/policy.onnx
+  #   ref_dir:    "motion/<name>.txt"  -> <controller>/motion/<name>.txt
+  # unless the path starts with /opt/limx/imptdata/models/.
+  #
+  # Publish a name on /limx_dance_sdk/motion to load another dance on the fly:
+  #   /policy/<name>/policy.onnx  and  motion/<name>.txt
+  # (setting/<name>.yaml can override those two paths). /limx_dance_sdk/restart
+  # restarts the current one. The frame count is the number of TXT rows; the held
+  # tail is the trailing run of frames identical to the last one.
+  #
+  # Which names resolve is a property of the controller's disk, not of this repository.
+  policy_dir: "/policy/test"
+  ref_dir: "motion/test.txt"
+
+  # true: assemble observations, run inference and publish diagnostics, but never send a joint
+  # command. Only useful for the very first bring-up pass, where the point is to check the loaded
+  # parameters.
+  dry_run: false
+
+  # Bring-up aid (stage 2). Drives the joints straight from the reference motion instead of the
+  # policy output, which isolates joint ordering and joint-space mistakes from policy behaviour.
+  # This is not a balancing controller - the robot will not stay upright.
+  replay_reference: false
+
+  control:
+    # 1000 Hz controller loop / 20 = 50 Hz policy rate, matching decimation 4 x sim dt 0.005 s
+    # on the training side. It is also the rate the reference TXT is sampled at, so changing this
+    # would play every dance at the wrong speed.
+    decimation: 20
+    # Per-joint torque budget, in config.yaml (hardware) joint order - the order the comments
+    # below name - which the controller permutes into the model's joint order at startup. Do not
+    # reorder these into the model order by hand: the model uses Isaac's breadth-first order
+    # (left_hip_pitch, right_hip_pitch, waist_yaw, left_hip_roll, ...), which interleaves the limbs
+    # and shares no positions with this one beyond the first.
+    user_torque_limit:
+      [
+        200.0,  # left_hip_pitch_joint
+        200.0,  # left_hip_roll_joint
+        200.0,  # left_hip_yaw_joint
+        200.0,  # left_knee_joint
+        70.0,   # left_ankle_pitch_joint
+        70.0,   # left_ankle_roll_joint
+
+        200.0,  # right_hip_pitch_joint
+        200.0,  # right_hip_roll_joint
+        200.0,  # right_hip_yaw_joint
+        200.0,  # right_knee_joint
+        70.0,   # right_ankle_pitch_joint
+        70.0,   # right_ankle_roll_joint
+
+        70.0,   # waist_yaw_joint
+        70.0,   # waist_roll_joint
+        70.0,   # waist_pitch_joint
+
+        15.8,   # head_yaw_joint
+        15.8,   # head_pitch_joint
+
+        70.0,   # left_shoulder_pitch_joint
+        70.0,   # left_shoulder_roll_joint
+        70.0,   # left_shoulder_yaw_joint
+        30.0,   # left_elbow_joint
+        15.8,   # left_wrist_yaw_joint
+
+        70.0,   # right_shoulder_pitch_joint
+        70.0,   # right_shoulder_roll_joint
+        70.0,   # right_shoulder_yaw_joint
+        30.0,   # right_elbow_joint
+        15.8,   # right_wrist_yaw_joint
+      ]
+
+  # There is no base state source to choose: the IMU is the only one, and for these policies it is
+  # complete rather than a fallback. None of them observes a world position or a root linear
+  # velocity, so attitude and angular rate is the whole of what the observation needs, and the
+  # controller rejects at startup any policy that would ask for more.
+
+  # Trace one line every N motion frames during playback, including the IMU-derived attitude next
+  # to MuJoCo's ground truth. That comparison is the first thing to check when the policy behaves
+  # differently here than it does in IsaacLab. Set to 0 to silence.
+  trace_every: 25
+
+  action_transition:
+    # There is no ramp onto the reference pose any more - the policy takes over immediately and
+    # corrects the pose while balancing, because an open-loop joint interpolation has nothing
+    # balancing the robot and measurably tipped it over (2.9 deg at 0.5 s, 46.7 deg at 1.5 s).
+    # What remains is a short cosine blend in *action* space, seeded by torque matching so the
+    # commanded torque is continuous across the hand-over. This mirrors the deployed controller's own transition.
+    transition_steps: 25
+
+  joint_state_stale_warn_sec: 0.5
+
+  # HU_L04_01's IMU is not mounted level on the real robot. Subscribe to /imu_offset
+  # (Float64Array [roll, pitch], the same contract the other deployed controllers use) and rotate
+  # the attitude and angular rate into the base frame. Harmless when nothing publishes it, and the
+  # simulation's IMU site is level so the offsets stay zero there.
+  use_imu_offset: true
+
+  # Guard only - clamps a NaN or blown-up network output before it reaches the joints.
+  clip_actions: 100.0
+
+  # Which space the policies observe and act in. This has to match how they were trained and
+  # nothing in the ONNX metadata says which it is: both kinds declare the same 27 joint names.
+  #   serial - trained on the serial articulation (HU_L04_01_rl.urdf), where ankle_pitch/roll and
+  #            waist_roll/pitch are the axes themselves. State comes from /joint/state and commands
+  #            go out with parallel_solver_mode 1, so kinematic_projection maps both directions.
+  #   motor  - trained on the closed-loop articulation, where those four names are really the two
+  #            achilles motors and the two waist motors of each linkage. State comes from
+  #            /motor/state and commands go out with parallel_solver_mode 0, unmapped - the same
+  #            path Walk and DanceLibrary use.
+  # It applies to every dance in the library, which is one more reason they all have to come from
+  # the same training variant. The solver mode is derived from this rather than configured
+  # separately, so the two halves cannot disagree. Getting it wrong does not fail: the ankle and
+  # waist would just be off by the linkage transform. All three dances here are closed-loop
+  # (Tracking-Flat-HU-L04-Parallel-Deploy-Gravity-v0), so this must stay "motor".
+  joint_space: "motor"

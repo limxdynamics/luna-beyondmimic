@@ -1,0 +1,38 @@
+name: Feature request
+description: Propose a scoped improvement to the supported Luna workflow.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user problem or limitation should be addressed?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Describe the smallest useful change and affected files or interfaces.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Boundary review
+      options:
+        - label: This may change observations, actions, robot-control behavior, or deployment metadata.
+        - label: This may add or change a dependency, file format, public API, build, or installation behavior.
+        - label: This may add or change robot assets, motion data, a checkpoint, ONNX, or another binary artifact.
+        - label: This may affect real-hardware safety or disclose hardware-private parameters.
+  - type: textarea
+    id: validation
+    attributes:
+      label: Proposed validation
+      description: CPU tests, Isaac Sim/GPU checks, and hardware checks should be listed separately.

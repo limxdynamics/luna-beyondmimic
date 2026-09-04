@@ -1,0 +1,22 @@
+LimxMimic — Motion Tracking for Luna (HU_L04)
+Copyright 2026 LimX Dynamics
+
+This product includes software developed by LimX Dynamics, licensed under the
+Apache License, Version 2.0. You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+This product is a modified fork of the HybridRobotics whole_body_tracking /
+BeyondMimic motion-tracking project (https://github.com/HybridRobotics/whole_body_tracking),
+which is licensed under the MIT License, Copyright (c) 2024 The Isaac Lab
+Project Developers. That notice is preserved verbatim in the top-level LICENCE
+file and applies to the upstream portions of this work.
+
+Individual files that carry their own copyright and SPDX headers are governed
+by those headers. See THIRD_PARTY_NOTICES.md for the complete inventory of
+sources, licenses and boundaries, including the robot description referenced as
+a submodule.
+
+The motion data under motions/ was collected internally by LimX Dynamics and is
+released under the Apache License, Version 2.0 along with the rest of LimX
+Dynamics' contributions.

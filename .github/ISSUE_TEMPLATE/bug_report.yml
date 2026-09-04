@@ -1,0 +1,70 @@
+name: Bug report
+description: Report a reproducible defect in source, tooling, training, or export.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not report an unpatched vulnerability or unsafe real-hardware incident here.
+        Follow SECURITY.md and email opensource@limxdynamics.com instead.
+  - type: input
+    id: commit
+    attributes:
+      label: Commit
+      description: Full commit SHA where the problem occurs.
+      placeholder: 0123456789abcdef...
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Installation
+        - Motion preparation
+        - Isaac Sim / training
+        - Replay
+        - ONNX / reference export
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Python, Isaac Sim, Isaac Lab, PyTorch, GPU, and driver versions as applicable.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Commands and the smallest non-sensitive input needed to reproduce the issue.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include the relevant error text. Redact machine paths, credentials, customer data, and private logs.
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety and data checks
+      options:
+        - label: This report contains no credentials, customer/field data, private motion capture, or sensitive robot configuration.
+          required: true
+        - label: This is not an unpatched security vulnerability or unsafe real-hardware incident.
+          required: true

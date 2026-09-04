@@ -1,0 +1,25 @@
+[package]
+
+# Semantic Versioning is used: https://semver.org/
+version = "0.1.0"
+
+# Project metadata
+category = "isaaclab"
+readme = "README.md"
+
+title = "LimxMimic — Luna Motion Tracking"
+author = "LimX Dynamics"
+maintainer = "LimX Dynamics"
+description = "Motion tracking training and deployment export for Luna (HU_L04)"
+repository = "https://github.com/limx-luna/luna-beyondmimic"
+keywords = ["limx", "luna", "hu_l04", "motion-tracking", "isaaclab"]
+
+[dependencies]
+"isaaclab" = {}
+"isaaclab_assets" = {}
+"isaaclab_mimic" = {}
+"isaaclab_rl" = {}
+"isaaclab_tasks" = {}
+
+[[python.module]]
+name = "whole_body_tracking"
