@@ -10,6 +10,10 @@
 
 [English](README.md) | **中文**
 
+<p align="center">
+  <img src="docs/luna_dance_figure.png" alt="LimX Luna 人形机器人执行 LimxMimic 学到的全身舞蹈动作" width="100%"/>
+</p>
+
 Luna（HU_L04）人形机器人的动作跟踪训练，基于
 [BeyondMimic](https://beyondmimic.github.io/)
 （[论文](https://arxiv.org/abs/2508.08241)、[视频](https://youtu.be/RS_MtKVIAzY)）。

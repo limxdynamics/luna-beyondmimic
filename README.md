@@ -10,6 +10,10 @@
 
 **English** | [中文](README.zh-CN.md)
 
+<p align="center">
+  <img src="docs/luna_dance_figure.png" alt="LimX Luna humanoid performing a whole-body dance motion learned with LimxMimic" width="100%"/>
+</p>
+
 Motion tracking training for the Luna (HU_L04) humanoid, built on
 [BeyondMimic](https://beyondmimic.github.io/)
 ([paper](https://arxiv.org/abs/2508.08241), [video](https://youtu.be/RS_MtKVIAzY)).
