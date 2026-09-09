@@ -55,11 +55,13 @@ python scripts/rsl_rl/train.py \
 ```
 
 组合导出会调用同一个 `scripts/prepare_motion.py`，生成临时 50 Hz / 51 DoF / 50 bodies `.npz`，
-增加默认 10 秒尾帧并执行 FK 校验，然后再生成 reference。该 `.npz` 是内部中间产物，导出结束后删除。
+增加默认 2 秒尾帧并执行 FK 校验，然后再生成 reference。该 `.npz` 是内部中间产物，导出结束后删除。
 
 并联残差默认作为告警写入报告，不阻断模型转换。需要严格拦截时使用
 `--strict-motion-check`；显式设置 `--motion-max-unreachable-error` 也会启用严格模式。
-如果训练使用了非默认尾帧长度，导出时必须传同样的 `--motion-tail-seconds`。
+训练默认尾帧仍为 10 秒；如需导出相同长度，传 `--motion-tail-seconds 10`。
+只有确认末帧告警来自高帧率连杆求解噪声、27 个电机已经稳定时，才可传
+`--motion-force-tail` 绕过静止门禁。
 
 只处理 LimX Dynamics 内部生成或验证过的可信 `.npy`；文件使用 pickle，未知来源输入可能执行代码。
 

@@ -28,6 +28,7 @@ class MotionPreparationTest(unittest.TestCase):
             motion_file=str(self.motion),
             motion_tail_seconds=7.5,
             motion_max_unreachable_error=0.2,
+            motion_force_tail=True,
         )
         commands = []
 
@@ -46,6 +47,7 @@ class MotionPreparationTest(unittest.TestCase):
         self.assertIn(str(self.motion), commands[0])
         self.assertIn("7.5", commands[0])
         self.assertIn("0.2", commands[0])
+        self.assertIn("--force_tail", commands[0])
 
         scratch.cleanup()
         self.assertFalse(prepared.exists())
@@ -55,6 +57,7 @@ class MotionPreparationTest(unittest.TestCase):
             motion_file=str(self.root / "motion.npz"),
             motion_tail_seconds=10.0,
             motion_max_unreachable_error=None,
+            motion_force_tail=False,
         )
 
         with self.assertRaises(SystemExit) as raised:
@@ -67,6 +70,7 @@ class MotionPreparationTest(unittest.TestCase):
             motion_file=str(self.motion),
             motion_tail_seconds=10.0,
             motion_max_unreachable_error=None,
+            motion_force_tail=False,
         )
 
         with (

@@ -29,6 +29,13 @@ def add_motion_preparation_args(parser: argparse.ArgumentParser) -> None:
         default=None,
         help="Passed to the linkage solve while preparing the intermediate .npz.",
     )
+    parser.add_argument(
+        "--motion_force_tail",
+        action="store_true",
+        help="Hold a final pose the motion has not settled into. The solved linkage DoF are"
+        " differentiated at the source frame rate, so a high source fps can report a moving"
+        " final frame from solver noise alone; check the 27 motor speeds before using this.",
+    )
 
 
 def prepare_motion_file(args: argparse.Namespace, parser: argparse.ArgumentParser) -> tempfile.TemporaryDirectory:
@@ -59,6 +66,8 @@ def prepare_motion_file(args: argparse.Namespace, parser: argparse.ArgumentParse
     ]
     if args.motion_max_unreachable_error is not None:
         command += ["--max_unreachable_error", str(args.motion_max_unreachable_error)]
+    if args.motion_force_tail:
+        command.append("--force_tail")
 
     print(f"[INFO] Preparing trusted retargeted motion {source} for hu_l04_parallel.")
     returncode = subprocess.run(command).returncode

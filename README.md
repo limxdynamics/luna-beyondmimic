@@ -433,9 +433,9 @@ out, the environment is teleported to a fresh random start time, so the final po
 frame or two and is never held. The result is a robot that cannot stand still after the motion
 finishes. A 10 s tail makes the policy practise holding it. Ten seconds matches the episode length,
 so a reset can land inside the tail and spend a whole episode doing nothing but standing; longer
-adds little. The tail freezes the final pose and **zeroes every velocity**. Because the deployment
-reference is generated from the same `.npy` through the same preparation settings, what deployment
-repeats is the same prepared trajectory that training consumed.
+adds little. The tail freezes the final pose and **zeroes every velocity**. Deployment uses the
+same `.npy`, but the combined exporter appends a 2-second tail by default. Pass
+`--motion-tail-seconds 10` during export when matching the training length is required.
 
 ### 4.2 Train
 
@@ -586,7 +586,7 @@ This is a system-level issue unrelated to this install.
 | Source | Warning | What it means, what to do |
 | --- | --- | --- |
 | `solve_parallel_linkage` | `[FAIL] Worst residual … exceeds …` | The reference asks for ankle/waist poses the achilles linkage **physically cannot reach**. The file is still written — it holds the closest reachable configuration — and remains usable, but those frames carry a tracking ceiling that **more training iterations cannot close**. Above roughly 10% of frames, go back and fix the retarget |
-| `append_motion_tail` | Refuses to run, reports the final frame is still moving | The motion still has speed at its last frame, so freezing it asks the robot to stop dead. **Usually a retargeting artifact at the clip boundary** — trim the last few frames with `npy_to_npz.py --frame_range 1 N` and retry rather than reaching for `--force` |
+| `append_motion_tail` | Refuses to run, reports the final frame is still moving | The motion still has speed at its last frame, so freezing it asks the robot to stop dead. **Usually a retargeting artifact at the clip boundary** — trim the last few frames with `npy_to_npz.py --frame_range 1 N`. Only when the warning is confirmed to be high-fps linkage-solver noise and all 27 motor speeds are settled may train/play use `--motion_force_tail` or combined export use `--motion-force-tail` |
 | `verify_motion_npz` | `[FAIL]`, some bodies out of tolerance | **A hard gate — do not train on it.** Usually means the joint/body ordering constants no longer match the model |
 
 ### 5.3 Training and replay

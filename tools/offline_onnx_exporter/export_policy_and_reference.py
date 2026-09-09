@@ -49,7 +49,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--motion-tail-seconds",
         type=float,
-        default=10.0,
+        default=2.0,
         help="Final-pose hold applied to the intermediate .npz. 0 disables the hold.",
     )
     parser.add_argument(
@@ -64,6 +64,15 @@ def parse_args() -> argparse.Namespace:
         help=(
             "Reject a motion whose linkage residual exceeds the configured limit. By default the"
             " exporter records and warns about that quality issue but still produces the reference."
+        ),
+    )
+    parser.add_argument(
+        "--motion-force-tail",
+        action="store_true",
+        help=(
+            "Hold a final pose the motion has not settled into. The solved linkage DoF are"
+            " differentiated at the source frame rate, so a high source fps can report a moving"
+            " final frame from solver noise alone; check the 27 motor speeds before using this."
         ),
     )
     return parser.parse_args()
@@ -85,6 +94,7 @@ def _prepare_motion(
     tail_seconds: float,
     max_unreachable_error: float | None,
     strict_motion_check: bool,
+    force_tail: bool,
     report_output: Path,
 ) -> None:
     if source_motion.suffix != ".npy":
@@ -118,6 +128,8 @@ def _prepare_motion(
         command += ["--max_unreachable_error", str(max_unreachable_error)]
     if not strict_motion_check:
         command.append("--allow_unreachable_motion")
+    if force_tail:
+        command.append("--force_tail")
     result = subprocess.run(command)
     if result.returncode != 0:
         raise RuntimeError(
@@ -194,6 +206,7 @@ def main() -> int:
                 tail_seconds=args.motion_tail_seconds,
                 max_unreachable_error=args.motion_max_unreachable_error,
                 strict_motion_check=strict_motion_check,
+                force_tail=args.motion_force_tail,
                 report_output=report_output,
             )
             reference_output = convert_npz_to_txt(intermediate, reference_output)

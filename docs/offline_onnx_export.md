@@ -62,9 +62,13 @@ python tools/offline_onnx_exporter/export_policy_and_reference.py \
 
 Linkage residuals are warnings by default during model conversion and are recorded in
 `linkage_report.json`. Add `--strict-motion-check` to reject residuals above 0.1 rad. An explicit
-`--motion-max-unreachable-error` also enables strict mode with that limit. Use the same
-`--motion-tail-seconds` as training. Optionally use `--run-path organization/project/run` to
-record the checkpoint source in ONNX metadata.
+`--motion-max-unreachable-error` also enables strict mode with that limit. Export appends a
+2-second tail by default while training appends 10 seconds; pass `--motion-tail-seconds 10` when
+matching lengths are required. Optionally use `--run-path organization/project/run` to record the
+checkpoint source in ONNX metadata.
+
+Use `--motion-force-tail` only after confirming that a final-frame motion warning comes from
+high-fps linkage-solver noise and that all 27 motor speeds have already settled.
 
 The output directory will contain:
 

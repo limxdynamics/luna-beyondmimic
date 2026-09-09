@@ -122,7 +122,8 @@ python tools/offline_onnx_exporter/export_policy_and_reference.py \
 ```
 
 Supply the training `.npy` for the complete bundle. This path requires the LimxMimic checkout,
-Isaac Sim, and Isaac Lab:
+Isaac Sim, and Isaac Lab. Export appends a 2-second tail by default while training appends
+10 seconds; pass `--motion-tail-seconds 10` if matching lengths are required:
 
 ```bash
 python tools/offline_onnx_exporter/export_policy_and_reference.py \

@@ -211,7 +211,7 @@ model_14999.pt
 - `logs/rsl_rl/hu_l04_parallel_deploy_gravity/<训练时间戳>/model_14999.pt`
 - `/absolute/path/to/your_motion.npy`
 
-这两个输入必须对应同一次训练，并使用相同的尾帧和并联可达误差参数。不要用一个动作训练出来的
+这两个输入必须对应同一次训练。训练默认追加 10 秒尾帧，导出默认追加 2 秒；不要用一个动作训练出来的
 checkpoint 去配另一个 `.npy`。
 
 ## 6. 模型转换
@@ -273,7 +273,8 @@ exported/your_motion/linkage_report.json
 
 - 必须是训练时传给 `--motion_file` 的同一个可信重定向 `.npy`。
 - 必须满足第 2 节的字段、形状、有限值和信任边界要求。
-- 导出时的 `--motion-tail-seconds` 必须与训练一致。
+- 导出默认追加 2 秒尾帧，训练默认追加 10 秒；如需两者一致，导出时显式传
+  `--motion-tail-seconds 10`。
 - 生成的临时 `.npz` 固定为 50 Hz、51 DoF、50 bodies，并通过 FK 校验后才用于 reference。
 
 ## 8. 最常见问题

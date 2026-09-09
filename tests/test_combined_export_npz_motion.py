@@ -127,6 +127,7 @@ class CombinedExportOutputPathTest(unittest.TestCase):
             tail_seconds,
             max_unreachable_error,
             strict_motion_check,
+            force_tail,
             report_output,
         ):
             calls.append(
@@ -136,6 +137,7 @@ class CombinedExportOutputPathTest(unittest.TestCase):
                     tail_seconds,
                     max_unreachable_error,
                     strict_motion_check,
+                    force_tail,
                     Path(report_output),
                 )
             )
@@ -181,8 +183,9 @@ class CombinedExportOutputPathTest(unittest.TestCase):
             (
                 "prepare",
                 self.motion,
-                10.0,
+                2.0,
                 None,
+                False,
                 False,
                 self.output_path / "linkage_report.json",
             ),
@@ -301,6 +304,7 @@ class CombinedExportOutputPathTest(unittest.TestCase):
                     str(self.output_path),
                     "--motion-max-unreachable-error",
                     "0.19",
+                    "--motion-force-tail",
                 ],
             ),
         ):
@@ -309,6 +313,7 @@ class CombinedExportOutputPathTest(unittest.TestCase):
         self.assertEqual(result, 0)
         self.assertTrue(calls[1]["strict_motion_check"])
         self.assertEqual(calls[1]["max_unreachable_error"], 0.19)
+        self.assertTrue(calls[1]["force_tail"])
 
     def test_prepare_rejects_an_npz_user_input(self):
         module = self._load_combined_exporter_with_fakes([])
@@ -322,6 +327,7 @@ class CombinedExportOutputPathTest(unittest.TestCase):
                 tail_seconds=10.0,
                 max_unreachable_error=None,
                 strict_motion_check=False,
+                force_tail=False,
                 report_output=self.root / "linkage_report.json",
             )
 

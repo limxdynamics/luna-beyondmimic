@@ -28,12 +28,15 @@ python tools/offline_onnx_exporter/export_policy_and_reference.py \
 ```
 
 这里的 `--motion` 是训练时传给 `scripts/rsl_rl/train.py --motion_file` 的同一个可信重定向 `.npy`。
-脚本按训练默认值生成临时 50 Hz / 51 DoF / 50 bodies `.npz`，加 10 秒尾帧并执行 FK 校验，再用它
+脚本生成临时 50 Hz / 51 DoF / 50 bodies `.npz`，默认加 2 秒尾帧并执行 FK 校验，再用它
 生成 TXT。临时 `.npz` 在导出结束后删除。
 
 并联不可达残差在模型转换中默认只告警，并写入 `linkage_report.json`。如需严格拦截，追加
 `--strict-motion-check`；显式传入 `--motion-max-unreachable-error` 也会开启严格模式并使用该阈值。
-`--motion-tail-seconds` 必须与训练保持一致。
+训练默认加 10 秒尾帧，导出默认加 2 秒；如需导出相同长度，显式传
+`--motion-tail-seconds 10`。
+如果末帧静止门禁仅由高帧率连杆求解噪声触发，在确认 27 个电机速度已经稳定后，可显式传
+`--motion-force-tail`；真实未停止的动作不应使用该参数绕过门禁。
 
 成功后得到：
 

@@ -21,3 +21,6 @@
 # ordinary Git blob so a clean public clone does not depend on an LFS endpoint. -text still
 # matters: the global `* text=auto` above would otherwise risk eol conversion on a binary.
 motions/*.npy -filter -diff -merge -text
+
+# Keep the public README figure available in clean clones without requiring LFS upload access.
+docs/luna_dance_figure.png -filter -diff -merge -text
