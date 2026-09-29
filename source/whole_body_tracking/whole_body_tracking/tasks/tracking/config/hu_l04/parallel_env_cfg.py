@@ -49,6 +49,7 @@ class HuL04ParallelFlatEnvCfg(TrackingEnvCfg):
             "right_shoulder_roll_link",
             "right_elbow_link",
             "right_wrist_yaw_link",
+            "head_pitch_link",
         ]
         self.events.base_com.params["asset_cfg"] = SceneEntityCfg("robot", body_names="waist_pitch_link")
 

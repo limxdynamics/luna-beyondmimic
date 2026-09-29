@@ -420,6 +420,7 @@ DEPLOY_BODY_NAMES = (
     "right_shoulder_roll_link",
     "right_elbow_link",
     "right_wrist_yaw_link",
+    "head_pitch_link",
 )
 
 DEFAULT_RUN_PATH = "none"
