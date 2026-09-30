@@ -59,6 +59,10 @@ Relative to the upstream baseline:
 - Robot and task variants that are not supported here (G1, SMPL, humanoid) and the upstream upload
   paths.
 
+### Fixed
+
+- 将 `head_pitch_link` 加入追踪 body，修复头部两个关节不跟随参考动作的问题；critic 观测由 327 维变为 336 维，此前训练的 checkpoint 无法再加载。
+
 ### Security
 
 - The retargeted `.npy` path uses NumPy pickle loading before schema validation, which is an
