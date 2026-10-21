@@ -20,6 +20,9 @@ Luna（HU_L04）人形机器人的动作跟踪训练，基于
 [BeyondMimic](https://beyondmimic.github.io/)
 （[论文](https://arxiv.org/abs/2508.08241)、[视频](https://youtu.be/RS_MtKVIAzY)）。
 
+**适用范围**：Luna 闭链模型，任务变体固定为 `Tracking-Flat-HU-L04-Parallel-Deploy-Gravity-v0`。
+动作重定向本身、训练平台的任务提交不在范围内；公开包不包含其他机型或训练任务。
+
 ## 亮点
 
 - **BeyondMimic 的 Luna 适配版。** 在 Isaac Lab 上为 27 自由度的 Luna 人形机器人做全身动作跟踪，使用 PPO 训练。
@@ -46,6 +49,9 @@ retargeted motion.npy  (27 DoF, 50 Hz)
 
 ## 文档导航
 
+本文覆盖四件事：搭好训练环境、看懂仓库结构、知道哪些参数能调、把一份已重定向的 `.npy` 数据跑成可以
+play 的策略。所有实际踩过的坑集中在[第五章](#5-注意事项)。
+
 | 文档 | 内容 |
 | --- | --- |
 | [QuickStart.zh-CN.md](QuickStart.zh-CN.md) | 从重定向后的 `.npy` 到部署文件的最短路径 |
@@ -62,42 +68,6 @@ retargeted motion.npy  (27 DoF, 50 Hz)
 <p align="center">
   <img src="docs/luna_dance_figure.png" alt="LimX Luna 人形机器人执行 LimxMimic 学到的全身舞蹈动作" width="100%"/>
 </p>
-
-## 关于本仓库
-
-本文覆盖四件事：搭好训练环境、看懂仓库结构、知道哪些参数能调、把一份已重定向的 `.npy` 数据跑成可以
-play 的策略。所有实际踩过的坑集中在[第五章](#5-注意事项)。
-
-**适用范围**：Luna 闭链模型，任务变体固定为 `Tracking-Flat-HU-L04-Parallel-Deploy-Gravity-v0`。
-动作重定向本身、训练平台的任务提交不在范围内；公开包不包含其他机型或训练任务。
-
-如果只想按最短路径完成一次训练和导出，先看 [`QuickStart.zh-CN.md`](QuickStart.zh-CN.md)。
-
-### 许可证边界
-
-本仓库是一个 MIT 许可上游项目的修改版。结论写在[第六章](#6-许可证)，边界本身如下：
-
-- fork 起点的上游代码保持 [MIT 许可证](LICENCE)，其版权声明原样保留。LimX Dynamics 的修改与新增
-  部分适用 [Apache-2.0](LICENSES/Apache-2.0.txt)。少数文件带有上游自己的 BSD-3-Clause 文件头；
-  fork 来源与文件级归因见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
-- 机器人描述**不**随本仓库分发，来自
-  [luna-description](https://github.com/limx-luna/luna-description) 子模块，适用 Apache-2.0。
-- `motions/` 下的随仓动作数据与 LimX Dynamics 的其他贡献适用同一份 Apache-2.0，其来源记录见
-  [动作数据清单](motions/README.zh-CN.md)。
-
-### 贡献与安全报告
-
-提交改动前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)，社区行为要求见
-[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)。不要用公开 issue 报告尚未修复的漏洞或真机安全问题；
-请按照 [SECURITY.md](SECURITY.md) 私下发送至 `opensource@limxdynamics.com`。已批准的正常运行边界见
-[SAFETY.md](SAFETY.md)，可公开的机器人/部署参数清单见
-[HARDWARE_DISCLOSURE.md](HARDWARE_DISCLOSURE.md)。
-
-### 随仓动作数据来源
-
-`motions/` 下的动作源由 **LimX Dynamics 自主采集**；仓库中的 `.npy` 是经过处理和重定向的机器人
-运动学轨迹，不是原始采集记录。项目负责人确认该数据已取得使用授权，并已批准以 Apache-2.0 随本仓库
-公开发布。详见[动作数据清单与使用状态](motions/README.zh-CN.md)。
 
 ---
 
@@ -633,3 +603,33 @@ site-packages 前面**。后果有两个：运行时被外部包覆盖；安装�
 商业使用）无需额外授权。
 
 fork 来源、文件级归因和完整清单见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+
+---
+
+## 关于本仓库
+
+### 许可证边界
+
+本仓库是一个 MIT 许可上游项目的修改版。结论写在上文[第六章](#6-许可证)，边界本身如下：
+
+- fork 起点的上游代码保持 [MIT 许可证](LICENCE)，其版权声明原样保留。LimX Dynamics 的修改与新增
+  部分适用 [Apache-2.0](LICENSES/Apache-2.0.txt)。少数文件带有上游自己的 BSD-3-Clause 文件头；
+  fork 来源与文件级归因见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+- 机器人描述**不**随本仓库分发，来自
+  [luna-description](https://github.com/limx-luna/luna-description) 子模块，适用 Apache-2.0。
+- `motions/` 下的随仓动作数据与 LimX Dynamics 的其他贡献适用同一份 Apache-2.0，其来源记录见
+  [动作数据清单](motions/README.zh-CN.md)。
+
+### 贡献与安全报告
+
+提交改动前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)，社区行为要求见
+[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)。不要用公开 issue 报告尚未修复的漏洞或真机安全问题；
+请按照 [SECURITY.md](SECURITY.md) 私下发送至 `opensource@limxdynamics.com`。已批准的正常运行边界见
+[SAFETY.md](SAFETY.md)，可公开的机器人/部署参数清单见
+[HARDWARE_DISCLOSURE.md](HARDWARE_DISCLOSURE.md)。
+
+### 随仓动作数据来源
+
+`motions/` 下的动作源由 **LimX Dynamics 自主采集**；仓库中的 `.npy` 是经过处理和重定向的机器人
+运动学轨迹，不是原始采集记录。项目负责人确认该数据已取得使用授权，并已批准以 Apache-2.0 随本仓库
+公开发布。详见[动作数据清单与使用状态](motions/README.zh-CN.md)。

@@ -20,6 +20,10 @@ Motion tracking training for the Luna (HU_L04) humanoid, built on
 [BeyondMimic](https://beyondmimic.github.io/)
 ([paper](https://arxiv.org/abs/2508.08241), [video](https://youtu.be/RS_MtKVIAzY)).
 
+**Scope.** The closed-loop Luna model, with the task fixed to
+`Tracking-Flat-HU-L04-Parallel-Deploy-Gravity-v0`. Retargeting itself and training-platform job
+submission are out of scope. No other robot or training task is part of the public package.
+
 ## Highlights
 
 - **BeyondMimic, adapted to Luna.** Whole-body motion tracking for the 27-DoF Luna humanoid on Isaac Lab, trained with PPO.
@@ -46,6 +50,10 @@ retargeted motion.npy  (27 DoF, 50 Hz)
 
 ## Documentation
 
+This README covers four things: setting up the environment, reading the repository layout, knowing
+which parameters are safe to tune, and taking a retargeted `.npy` all the way to a policy you can
+replay. Every gotcha we have actually hit is collected in [section 5](#5-gotchas).
+
 | Document | What it covers |
 | --- | --- |
 | [QuickStart.md](QuickStart.md) | Shortest path from a retargeted `.npy` to the deployment files |
@@ -62,53 +70,6 @@ retargeted motion.npy  (27 DoF, 50 Hz)
 <p align="center">
   <img src="docs/luna_dance_figure.png" alt="LimX Luna humanoid performing a whole-body dance motion learned with LimxMimic" width="100%"/>
 </p>
-
-## About this repository
-
-This README covers four things: setting up the environment, reading the repository layout, knowing
-which parameters are safe to tune, and taking a retargeted `.npy` all the way to a policy you can
-replay. Every gotcha we have actually hit is collected in [section 5](#5-gotchas).
-
-**Scope.** The closed-loop Luna model, with the task fixed to
-`Tracking-Flat-HU-L04-Parallel-Deploy-Gravity-v0`. Retargeting itself and training-platform job
-submission are out of scope. No other robot or training task is part of the public package.
-
-For the shortest path from a retargeted motion to deployment files, start with
-[`QuickStart.md`](QuickStart.md).
-
-### License boundaries
-
-This repository is a modified fork of an MIT-licensed upstream project. The short version is in
-[section 6](#6-license); the boundaries themselves are:
-
-- The upstream code this fork started from stays under the [MIT license](LICENCE), whose copyright
-  notice is preserved verbatim. LimX Dynamics' modifications and additions are licensed under
-  [Apache-2.0](LICENSES/Apache-2.0.txt). A few files carry their own upstream BSD-3-Clause header;
-  fork provenance and file-level attributions are in
-  [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-- The robot description is **not** distributed here. It comes from the
-  [luna-description](https://github.com/limx-luna/luna-description) submodule, licensed
-  Apache-2.0.
-- Bundled motion data under `motions/` is released under the same Apache-2.0 terms as the rest of
-  LimX Dynamics' contributions. Its provenance is recorded in the
-  [motion-data inventory](motions/README.md).
-
-### Contributing and security
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) before proposing a change and
-[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community expectations. Do not open a public issue for
-an unpatched vulnerability or unsafe real-hardware behavior; follow [SECURITY.md](SECURITY.md) and
-report it privately to `opensource@limxdynamics.com`. The approved normal-operation boundary is in
-[SAFETY.md](SAFETY.md), and publicly disclosed robot/deployment parameters are inventoried in
-[HARDWARE_DISCLOSURE.md](HARDWARE_DISCLOSURE.md).
-
-### Bundled motion-data provenance
-
-The source motion represented by the file under `motions/` was **collected internally by LimX
-Dynamics**. The `.npy` is a processed, retargeted robot-kinematics trajectory rather than a raw
-capture recording. The project owner confirms that the represented data has been authorized for
-use and has approved its publication here under Apache-2.0. See the
-[motion-data inventory and data-use status](motions/README.md).
 
 ---
 
@@ -684,3 +645,41 @@ needed to use it - commercially or otherwise.
 
 Fork provenance, file-level attributions and the full inventory are in
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+---
+
+## About this repository
+
+### License boundaries
+
+This repository is a modified fork of an MIT-licensed upstream project. The short version is in
+[section 6](#6-license) above; the boundaries themselves are:
+
+- The upstream code this fork started from stays under the [MIT license](LICENCE), whose copyright
+  notice is preserved verbatim. LimX Dynamics' modifications and additions are licensed under
+  [Apache-2.0](LICENSES/Apache-2.0.txt). A few files carry their own upstream BSD-3-Clause header;
+  fork provenance and file-level attributions are in
+  [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+- The robot description is **not** distributed here. It comes from the
+  [luna-description](https://github.com/limx-luna/luna-description) submodule, licensed
+  Apache-2.0.
+- Bundled motion data under `motions/` is released under the same Apache-2.0 terms as the rest of
+  LimX Dynamics' contributions. Its provenance is recorded in the
+  [motion-data inventory](motions/README.md).
+
+### Contributing and security
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) before proposing a change and
+[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community expectations. Do not open a public issue for
+an unpatched vulnerability or unsafe real-hardware behavior; follow [SECURITY.md](SECURITY.md) and
+report it privately to `opensource@limxdynamics.com`. The approved normal-operation boundary is in
+[SAFETY.md](SAFETY.md), and publicly disclosed robot/deployment parameters are inventoried in
+[HARDWARE_DISCLOSURE.md](HARDWARE_DISCLOSURE.md).
+
+### Bundled motion-data provenance
+
+The source motion represented by the file under `motions/` was **collected internally by LimX
+Dynamics**. The `.npy` is a processed, retargeted robot-kinematics trajectory rather than a raw
+capture recording. The project owner confirms that the represented data has been authorized for
+use and has approved its publication here under Apache-2.0. See the
+[motion-data inventory and data-use status](motions/README.md).
