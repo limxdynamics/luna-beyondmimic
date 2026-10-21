@@ -24,3 +24,4 @@ motions/*.npy -filter -diff -merge -text
 
 # Keep the public README figure available in clean clones without requiring LFS upload access.
 docs/luna_dance_figure.png -filter -diff -merge -text
+docs/limxmimic_banner.png -filter -diff -merge -text

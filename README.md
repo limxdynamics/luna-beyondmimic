@@ -1,4 +1,8 @@
-# LimxMimic — Motion Tracking for Luna (HU_L04)
+<div align="center">
+
+<img src="docs/limxmimic_banner.png" alt="LimxMimic: Luna humanoid dance poses rendered from the bundled motion" width="100%"/>
+
+**English** | [中文](README.zh-CN.md)
 
 [![IsaacSim](https://img.shields.io/badge/IsaacSim-4.5.0-silver.svg)](https://docs.omniverse.nvidia.com/isaacsim/latest/overview.html)
 [![Isaac Lab](https://img.shields.io/badge/IsaacLab-2.1.0-silver)](https://isaac-sim.github.io/IsaacLab)
@@ -8,15 +12,58 @@
 [![LimX modifications](https://img.shields.io/badge/LimX_modifications-Apache--2.0-blue.svg)](LICENSES/Apache-2.0.txt)
 [![Robot description](https://img.shields.io/badge/robot_description-Apache--2.0-blue.svg)](https://github.com/limx-luna/luna-description)
 
-**English** | [中文](README.zh-CN.md)
+</div>
+
+# LimxMimic — Motion Tracking for Luna (HU_L04)
+
+Motion tracking training for the Luna (HU_L04) humanoid, built on
+[BeyondMimic](https://beyondmimic.github.io/)
+([paper](https://arxiv.org/abs/2508.08241), [video](https://youtu.be/RS_MtKVIAzY)).
+
+## Highlights
+
+- **BeyondMimic, adapted to Luna.** Whole-body motion tracking for the 27-DoF Luna humanoid on Isaac Lab, trained with PPO.
+- **Closed-loop linkages handled for you.** Every motion is converted automatically: the ankle and waist linkages are solved, the motion is mapped to the 51-DoF closed-loop training layout, and forward kinematics is checked before training starts.
+- **One `.npy` from training to deployment.** Training, replay and export all take the same retargeted motion file.
+- **Deployment-ready export.** `policy.onnx` (141-dim observation, 27 actions), a 50 Hz reference trajectory and a complete `param.yaml`, plus scripts that cross-check them against the deployment configuration.
+- **Try it end to end.** Ships with a 22.9 s dance motion collected by LimX Dynamics.
+
+## Pipeline
+
+```text
+retargeted motion.npy  (27 DoF, 50 Hz)
+        │
+        │  prepared automatically: solve ankle + waist linkages ─► 51-DoF closed-loop layout
+        │                          ─► hold final pose ─► forward-kinematics check
+        ▼
+  train.py   Isaac Lab + PPO ─────────────────────────► model.pt
+        │
+        ├──► play.py   replay the policy in Isaac Sim
+        │
+        ▼
+  export_policy_and_reference.py ─► policy.onnx + reference.txt + param.yaml
+```
+
+## Documentation
+
+| Document | What it covers |
+| --- | --- |
+| [QuickStart.md](QuickStart.md) | Shortest path from a retargeted `.npy` to the deployment files |
+| [1. Installation](#1-installation) | Pinned versions, preflight checks and a 7-step install |
+| [2. Repository layout](#2-repository-layout) | Where everything lives and where to change what |
+| [3. Tunable parameters](#3-tunable-parameters) | What is fixed and what is safe to tune |
+| [4. From a retargeted `.npy` to `play`](#4-from-a-retargeted-npy-to-play) | Motion conversion, training, checkpoints and convergence |
+| [5. Gotchas](#5-gotchas) | Every issue we have actually hit, with fixes |
+| [SAFETY.md](SAFETY.md) | The approved operating boundary before real-hardware use |
+| [motions/README.md](motions/README.md) | Bundled motion data: schema, provenance and license |
+
+## On the real robot
 
 <p align="center">
   <img src="docs/luna_dance_figure.png" alt="LimX Luna humanoid performing a whole-body dance motion learned with LimxMimic" width="100%"/>
 </p>
 
-Motion tracking training for the Luna (HU_L04) humanoid, built on
-[BeyondMimic](https://beyondmimic.github.io/)
-([paper](https://arxiv.org/abs/2508.08241), [video](https://youtu.be/RS_MtKVIAzY)).
+## About this repository
 
 This README covers four things: setting up the environment, reading the repository layout, knowing
 which parameters are safe to tune, and taking a retargeted `.npy` all the way to a policy you can

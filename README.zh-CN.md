@@ -1,4 +1,8 @@
-# LimxMimic — Luna (HU_L04) 动作跟踪
+<div align="center">
+
+<img src="docs/limxmimic_banner.png" alt="LimxMimic：由随仓动作数据渲染的 Luna 人形机器人舞姿" width="100%"/>
+
+[English](README.md) | **中文**
 
 [![IsaacSim](https://img.shields.io/badge/IsaacSim-4.5.0-silver.svg)](https://docs.omniverse.nvidia.com/isaacsim/latest/overview.html)
 [![Isaac Lab](https://img.shields.io/badge/IsaacLab-2.1.0-silver)](https://isaac-sim.github.io/IsaacLab)
@@ -8,15 +12,58 @@
 [![LimX 修改部分](https://img.shields.io/badge/LimX_modifications-Apache--2.0-blue.svg)](LICENSES/Apache-2.0.txt)
 [![机器人描述](https://img.shields.io/badge/robot_description-Apache--2.0-blue.svg)](https://github.com/limx-luna/luna-description)
 
-[English](README.md) | **中文**
+</div>
+
+# LimxMimic — Luna (HU_L04) 动作跟踪
+
+Luna（HU_L04）人形机器人的动作跟踪训练，基于
+[BeyondMimic](https://beyondmimic.github.io/)
+（[论文](https://arxiv.org/abs/2508.08241)、[视频](https://youtu.be/RS_MtKVIAzY)）。
+
+## 亮点
+
+- **BeyondMimic 的 Luna 适配版。** 在 Isaac Lab 上为 27 自由度的 Luna 人形机器人做全身动作跟踪，使用 PPO 训练。
+- **闭链连杆自动处理。** 每段动作都会自动转换：求解脚踝和腰部连杆，映射到 51 自由度的闭链训练布局，并在训练开始前做正运动学校验。
+- **一个 `.npy` 贯穿训练到部署。** 训练、回放和导出都直接使用同一份重定向后的动作文件。
+- **导出即可部署。** 生成 `policy.onnx`（141 维观测、27 维动作）、50 Hz 参考轨迹和完整的 `param.yaml`，并附带与部署配置交叉校验的脚本。
+- **开箱即可跑通全流程。** 随仓附带一段 22.9 秒、由 LimX Dynamics 采集的舞蹈动作。
+
+## 流程
+
+```text
+retargeted motion.npy  (27 DoF, 50 Hz)
+        │
+        │  prepared automatically: solve ankle + waist linkages ─► 51-DoF closed-loop layout
+        │                          ─► hold final pose ─► forward-kinematics check
+        ▼
+  train.py   Isaac Lab + PPO ─────────────────────────► model.pt
+        │
+        ├──► play.py   replay the policy in Isaac Sim
+        │
+        ▼
+  export_policy_and_reference.py ─► policy.onnx + reference.txt + param.yaml
+```
+
+## 文档导航
+
+| 文档 | 内容 |
+| --- | --- |
+| [QuickStart.zh-CN.md](QuickStart.zh-CN.md) | 从重定向后的 `.npy` 到部署文件的最短路径 |
+| [1. 环境安装](#1-环境安装) | 固定版本、安装前检查与 7 步安装 |
+| [2. 仓库目录结构](#2-仓库目录结构) | 各部分代码的位置，以及改什么去哪里 |
+| [3. 可调参数](#3-可调参数) | 哪些是固定的，哪些可以放心调 |
+| [4. 从 npy 数据到 play](#4-从-npy-数据到-play) | 动作转换、训练、checkpoint 与收敛判断 |
+| [5. 注意事项](#5-注意事项) | 实际踩过的坑及解决办法 |
+| [SAFETY.md](SAFETY.md) | 真机使用前必须遵守的运行边界 |
+| [motions/README.zh-CN.md](motions/README.zh-CN.md) | 随仓动作数据：格式、来源与许可 |
+
+## 真机效果
 
 <p align="center">
   <img src="docs/luna_dance_figure.png" alt="LimX Luna 人形机器人执行 LimxMimic 学到的全身舞蹈动作" width="100%"/>
 </p>
 
-Luna（HU_L04）人形机器人的动作跟踪训练，基于
-[BeyondMimic](https://beyondmimic.github.io/)
-（[论文](https://arxiv.org/abs/2508.08241)、[视频](https://youtu.be/RS_MtKVIAzY)）。
+## 关于本仓库
 
 本文覆盖四件事：搭好训练环境、看懂仓库结构、知道哪些参数能调、把一份已重定向的 `.npy` 数据跑成可以
 play 的策略。所有实际踩过的坑集中在[第五章](#5-注意事项)。

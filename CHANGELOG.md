@@ -22,6 +22,8 @@ Relative to the upstream baseline:
 
 ### Added
 
+- README banner rendered from the bundled dance motion, plus Highlights, Pipeline and
+  Documentation sections at the top of `README.md` and `README.zh-CN.md`.
 - Closed-loop simulation of the ankle and waist achilles linkages instead of a direct-drive
   approximation. The articulation carries 51 DoF while the action space stays 27 wide, six of
   which are motor angles rather than the joint they are named after.
