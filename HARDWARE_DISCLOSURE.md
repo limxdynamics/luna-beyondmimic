@@ -11,7 +11,7 @@ The approved scope is:
 
 | Information | Public location | Decision |
 | --- | --- | --- |
-| Closed-loop robot geometry | [luna-description](https://github.com/limx-luna/luna-description), `HU_L04_description/usd_parallel/` | Approved |
+| Closed-loop robot geometry | [luna-description](https://github.com/limxdynamics/luna-description), `HU_L04_description/usd_parallel/` | Approved |
 | Achilles linkage geometry | `tools/offline_onnx_exporter/deploy_config.py` | Approved |
 | Joint names, ordering, and motor-space aliases | `hu_l04_parallel.py`, `deploy_config.py`, ONNX metadata | Approved |
 | Joint and achilles-motor travel limits | `deploy_config.py`, read from the description's URDF and MJCF | Approved |

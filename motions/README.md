@@ -44,7 +44,7 @@ not replace the outstanding privacy/biometric review of the motion itself.
 ### Geometry provenance
 
 This file was retargeted against a neighbouring revision of the Luna description, not against the
-[`luna-description`](https://github.com/limx-luna/luna-description) commit this repository pins.
+[`luna-description`](https://github.com/limxdynamics/luna-description) commit this repository pins.
 The two agree on every joint name and on the joint limits, but their link lengths differ by up to
 2.5 mm — the largest single difference is at the elbow, and the deviation accumulates to a few
 millimetres along the arm and leg chains.

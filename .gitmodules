@@ -1,3 +1,3 @@
 [submodule "robot_descriptions/luna-description"]
 	path = robot_descriptions/luna-description
-	url = https://github.com/limx-luna/luna-description
+	url = https://github.com/limxdynamics/luna-description

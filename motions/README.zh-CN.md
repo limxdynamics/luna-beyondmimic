@@ -37,7 +37,7 @@ Luna 的机器人运动学参考轨迹，不是原始采集记录。项目负责
 ### 几何来源说明
 
 这份文件是在 Luna 描述的相邻版本上重定向的，不是本仓库锁定的
-[`luna-description`](https://github.com/limx-luna/luna-description) commit。两者的关节命名和
+[`luna-description`](https://github.com/limxdynamics/luna-description) commit。两者的关节命名和
 关节限位完全一致，但连杆长度最大相差 2.5 mm——最大单处差异在肘关节，沿手臂和腿部链条累积后为几
 毫米。
 

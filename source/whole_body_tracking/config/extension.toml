@@ -11,7 +11,7 @@ title = "LimxMimic — Luna Motion Tracking"
 author = "LimX Dynamics"
 maintainer = "LimX Dynamics"
 description = "Motion tracking training and deployment export for Luna (HU_L04)"
-repository = "https://github.com/limx-luna/luna-beyondmimic"
+repository = "https://github.com/limxdynamics/luna-beyondmimic"
 keywords = ["limx", "luna", "hu_l04", "motion-tracking", "isaaclab"]
 
 [dependencies]

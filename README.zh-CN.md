@@ -10,7 +10,7 @@
 [![Linux platform](https://img.shields.io/badge/platform-linux--64-orange.svg)](https://releases.ubuntu.com/22.04/)
 [![上游代码](https://img.shields.io/badge/upstream_code-MIT-yellow.svg)](LICENCE)
 [![LimX 修改部分](https://img.shields.io/badge/LimX_modifications-Apache--2.0-blue.svg)](LICENSES/Apache-2.0.txt)
-[![机器人描述](https://img.shields.io/badge/robot_description-Apache--2.0-blue.svg)](https://github.com/limx-luna/luna-description)
+[![机器人描述](https://img.shields.io/badge/robot_description-Apache--2.0-blue.svg)](https://github.com/limxdynamics/luna-description)
 
 </div>
 
@@ -593,7 +593,7 @@ site-packages 前面**。后果有两个：运行时被外部包覆盖；安装�
 | LimX Dynamics 的修改与新增部分 | Apache-2.0，Copyright 2026 LimX Dynamics | [`LICENSES/Apache-2.0.txt`](LICENSES/Apache-2.0.txt) |
 | 自带许可证头的文件（`scripts/rsl_rl/train.py`、`utils/exporter.py`） | BSD-3-Clause | [`LICENSES/BSD-3-Clause.txt`](LICENSES/BSD-3-Clause.txt) |
 | `motions/` 下的动作数据 | Apache-2.0 | [`LICENSES/Apache-2.0.txt`](LICENSES/Apache-2.0.txt) |
-| 机器人描述（子模块，不随本仓库分发） | Apache-2.0 | [luna-description](https://github.com/limx-luna/luna-description) |
+| 机器人描述（子模块，不随本仓库分发） | Apache-2.0 | [luna-description](https://github.com/limxdynamics/luna-description) |
 
 上游 MIT 声明原样保留，任何再分发都必须保持原样。LimX Dynamics 自己的贡献适用 Apache-2.0；文件
 自带许可证头的，以该文件头为准。MIT 与 Apache-2.0 相互兼容，接收方只要同时保留 `LICENCE`、
@@ -616,7 +616,7 @@ fork 来源、文件级归因和完整清单见 [THIRD_PARTY_NOTICES.md](THIRD_P
   部分适用 [Apache-2.0](LICENSES/Apache-2.0.txt)。少数文件带有上游自己的 BSD-3-Clause 文件头；
   fork 来源与文件级归因见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 - 机器人描述**不**随本仓库分发，来自
-  [luna-description](https://github.com/limx-luna/luna-description) 子模块，适用 Apache-2.0。
+  [luna-description](https://github.com/limxdynamics/luna-description) 子模块，适用 Apache-2.0。
 - `motions/` 下的随仓动作数据与 LimX Dynamics 的其他贡献适用同一份 Apache-2.0，其来源记录见
   [动作数据清单](motions/README.zh-CN.md)。
 

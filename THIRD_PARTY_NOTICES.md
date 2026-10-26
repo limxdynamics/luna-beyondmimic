@@ -82,7 +82,7 @@ no separate terms. Its provenance, processing history and review status are reco
 
 The Luna robot description is **not** distributed by this repository. It is referenced as a Git
 submodule at `robot_descriptions/luna-description`, pointing at
-<https://github.com/limx-luna/luna-description>, and is licensed Apache-2.0 by that repository.
+<https://github.com/limxdynamics/luna-description>, and is licensed Apache-2.0 by that repository.
 Its license and notice files travel with it; nothing in this repository restates or supersedes
 them.
 

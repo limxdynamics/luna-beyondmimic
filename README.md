@@ -10,7 +10,7 @@
 [![Linux platform](https://img.shields.io/badge/platform-linux--64-orange.svg)](https://releases.ubuntu.com/22.04/)
 [![Upstream code](https://img.shields.io/badge/upstream_code-MIT-yellow.svg)](LICENCE)
 [![LimX modifications](https://img.shields.io/badge/LimX_modifications-Apache--2.0-blue.svg)](LICENSES/Apache-2.0.txt)
-[![Robot description](https://img.shields.io/badge/robot_description-Apache--2.0-blue.svg)](https://github.com/limx-luna/luna-description)
+[![Robot description](https://img.shields.io/badge/robot_description-Apache--2.0-blue.svg)](https://github.com/limxdynamics/luna-description)
 
 </div>
 
@@ -631,7 +631,7 @@ applies. In short:
 | LimX Dynamics' modifications and additions | Apache-2.0, Copyright 2026 LimX Dynamics | [`LICENSES/Apache-2.0.txt`](LICENSES/Apache-2.0.txt) |
 | Files carrying their own header (`scripts/rsl_rl/train.py`, `utils/exporter.py`) | BSD-3-Clause | [`LICENSES/BSD-3-Clause.txt`](LICENSES/BSD-3-Clause.txt) |
 | Motion data under `motions/` | Apache-2.0 | [`LICENSES/Apache-2.0.txt`](LICENSES/Apache-2.0.txt) |
-| Robot description (submodule, not distributed here) | Apache-2.0 | [luna-description](https://github.com/limx-luna/luna-description) |
+| Robot description (submodule, not distributed here) | Apache-2.0 | [luna-description](https://github.com/limxdynamics/luna-description) |
 
 The upstream MIT notice is preserved verbatim and must stay that way in any redistribution. LimX
 Dynamics licenses its own contributions under Apache-2.0; where a file carries its own license
@@ -661,7 +661,7 @@ This repository is a modified fork of an MIT-licensed upstream project. The shor
   fork provenance and file-level attributions are in
   [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 - The robot description is **not** distributed here. It comes from the
-  [luna-description](https://github.com/limx-luna/luna-description) submodule, licensed
+  [luna-description](https://github.com/limxdynamics/luna-description) submodule, licensed
   Apache-2.0.
 - Bundled motion data under `motions/` is released under the same Apache-2.0 terms as the rest of
   LimX Dynamics' contributions. Its provenance is recorded in the

@@ -87,7 +87,7 @@ class LocalOnlyWorkflowTest(unittest.TestCase):
         self.assertIn('title = "LimxMimic — Luna Motion Tracking"', extension)
         self.assertIn('author = "LimX Dynamics"', extension)
         self.assertIn('maintainer = "LimX Dynamics"', extension)
-        self.assertIn('repository = "https://github.com/limx-luna/luna-beyondmimic"', extension)
+        self.assertIn('repository = "https://github.com/limxdynamics/luna-beyondmimic"', extension)
         self.assertNotIn("Extension Template", extension)
         self.assertNotIn("IsaacLabExtensionTemplate", extension)
 
@@ -134,7 +134,7 @@ class LocalOnlyWorkflowTest(unittest.TestCase):
     def test_robot_description_is_a_submodule_rather_than_vendored(self):
         modules = (REPOSITORY_ROOT / ".gitmodules").read_text(encoding="utf-8")
         self.assertIn("path = robot_descriptions/luna-description", modules)
-        self.assertIn("url = https://github.com/limx-luna/luna-description", modules)
+        self.assertIn("url = https://github.com/limxdynamics/luna-description", modules)
 
         # An uninitialised submodule is an empty directory, so the description may legitimately be
         # absent here. What must hold either way is that nothing is vendored under the package.
