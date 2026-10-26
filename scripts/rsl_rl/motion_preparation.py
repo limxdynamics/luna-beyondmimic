@@ -32,9 +32,11 @@ def add_motion_preparation_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--motion_force_tail",
         action="store_true",
-        help="Hold a final pose the motion has not settled into. The solved linkage DoF are"
-        " differentiated at the source frame rate, so a high source fps can report a moving"
-        " final frame from solver noise alone; check the 27 motor speeds before using this.",
+        help=(
+            "Hold a final pose the motion has not settled into. The solved linkage DoF are"
+            " differentiated at the source frame rate, so a high source fps can report a moving"
+            " final frame from solver noise alone; check the 27 motor speeds before using this."
+        ),
     )
 
 
