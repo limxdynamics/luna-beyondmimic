@@ -57,6 +57,7 @@ replay. Every gotcha we have actually hit is collected in [section 5](#5-gotchas
 | Document | What it covers |
 | --- | --- |
 | [QuickStart.md](QuickStart.md) | Shortest path from a retargeted `.npy` to the deployment files |
+| [Install.md](Install.md) | A longer, blow-by-blow record of the same install (in Chinese) |
 | [1. Installation](#1-installation) | Pinned versions, preflight checks and a 7-step install |
 | [2. Repository layout](#2-repository-layout) | Where everything lives and where to change what |
 | [3. Tunable parameters](#3-tunable-parameters) | What is fixed and what is safe to tune |
@@ -181,8 +182,12 @@ whole_body_tracking/
 │   ├── npy_to_npz.py                retargeted .npy -> trainable .npz
 │   ├── append_motion_tail.py        hold the final pose for N seconds
 │   ├── verify_motion_npz.py         forward-kinematics check (hard gate)
+│   ├── linkage_quality.py           per-frame residual report for a linkage solve
 │   ├── dump_articulation_order.py   print the canonical joint/body order
-│   └── replay_npz.py                replay a reference motion in Isaac Sim
+│   ├── replay_npz.py                replay a reference motion in Isaac Sim
+│   ├── export_motion_policy.py      entry point for the offline ONNX exporter
+│   ├── check_deploy_onnx.py         cross-check ONNX metadata vs a hardware config
+│   └── verify_parallel_motor_convention.py   cross-check motor sign and zero
 │
 ├── source/whole_body_tracking/whole_body_tracking/
 │   ├── tasks/tracking/
@@ -203,7 +208,8 @@ whole_body_tracking/
 ├── robot_descriptions/luna-description/   submodule: the HU_L04 USD, URDF, MJCF and meshes
 ├── motions/                         retargeted .npy reference motions
 ├── logs/rsl_rl/                     checkpoints, TensorBoard, exported ONNX
-└── tools/offline_onnx_exporter/     policy-only offline export + combined NPY pipeline
+├── tools/offline_onnx_exporter/     policy-only offline export + combined NPY pipeline
+└── tests/                           pytest suite for the scripts and the exporter
 ```
 
 ### Where to change what
@@ -383,18 +389,11 @@ motors and the 18 DoF of the six spherical rod joints.
 > the closed-loop constraint**. They never enter the policy's observation or action; the interface
 > stays 27-dimensional motor space throughout.
 
-**The short way.** `train.py` accepts a `.npy` directly and prepares it first, so a single command
-takes you from retargeted data to a running job. Preparation adds about a minute, because two of
-the steps each launch their own Isaac Sim.
-
-```bash
-python scripts/rsl_rl/train.py \
-  --task=Tracking-Flat-HU-L04-Parallel-Deploy-Gravity-v0 \
-  --motion_file /path/to/your_motion.npy \
-  --num_envs 4096 --headless --max_iterations 15000
-```
-
-`--motion_tail_seconds` (default 10) and `--motion_max_unreachable_error` tune that preparation.
+**The short way.** `train.py` accepts a `.npy` directly and prepares it first, so the single
+command in [4.2](#42-train) takes you from retargeted data all the way to a running job — there is
+no separate preparation step to run. Preparation adds about a minute, because two of its stages
+each launch their own Isaac Sim. `--motion_tail_seconds` (default 10) and
+`--motion_max_unreachable_error` tune that preparation.
 To inspect or retain the intermediate `.npz`, run the same pipeline on its own — worth doing the
 first time you see a motion, so you read the warnings before committing to a long job:
 
@@ -463,9 +462,17 @@ Output lands in `logs/rsl_rl/hu_l04_parallel_deploy_gravity/<timestamp>/`, one c
 iterations. `hu_l04_parallel_deploy_gravity` is the `experiment_name` this task variant is pinned
 to, defined in `rsl_rl_ppo_cfg.py`.
 
-### 4.3 Where the `.pt` and the motion have to live
+### 4.3 Where the checkpoint and the motion have to live
 
-**The checkpoint** goes inside the experiment directory:
+**The checkpoint — give it a path.** A relative or absolute file path is used as given, wherever
+the file happens to sit:
+
+```bash
+--checkpoint /path/to/model_14999.pt
+```
+
+A bare name or a regex is the legacy form: it is resolved under `--load_run` inside the experiment
+directory, whose name the task variant fixes:
 
 ```
 whole_body_tracking/
@@ -474,15 +481,6 @@ whole_body_tracking/
         └── 2026-08-14_18-07-36/          <- any directory name
             └── model_14999.pt            <- must be model_<number>.pt
 ```
-
-**The checkpoint can live anywhere.** Pass an existing relative or absolute file path directly:
-
-```bash
---checkpoint /path/to/model_14999.pt
-```
-
-Bare checkpoint names or regexes retain the legacy behavior and are resolved under the
-`--load_run` directory.
 
 **The motion source** can live anywhere. Pass the same trusted `.npy` used for training; `play.py`
 runs the shared preparation pipeline before launching the playback environment. Use
@@ -649,23 +647,6 @@ Fork provenance, file-level attributions and the full inventory are in
 ---
 
 ## About this repository
-
-### License boundaries
-
-This repository is a modified fork of an MIT-licensed upstream project. The short version is in
-[section 6](#6-license) above; the boundaries themselves are:
-
-- The upstream code this fork started from stays under the [MIT license](LICENCE), whose copyright
-  notice is preserved verbatim. LimX Dynamics' modifications and additions are licensed under
-  [Apache-2.0](LICENSES/Apache-2.0.txt). A few files carry their own upstream BSD-3-Clause header;
-  fork provenance and file-level attributions are in
-  [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-- The robot description is **not** distributed here. It comes from the
-  [luna-description](https://github.com/limxdynamics/luna-description) submodule, licensed
-  Apache-2.0.
-- Bundled motion data under `motions/` is released under the same Apache-2.0 terms as the rest of
-  LimX Dynamics' contributions. Its provenance is recorded in the
-  [motion-data inventory](motions/README.md).
 
 ### Contributing and security
 

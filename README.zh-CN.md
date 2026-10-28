@@ -55,6 +55,7 @@ play 的策略。所有实际踩过的坑集中在[第五章](#5-注意事项)�
 | 文档 | 内容 |
 | --- | --- |
 | [QuickStart.zh-CN.md](QuickStart.zh-CN.md) | 从重定向后的 `.npy` 到部署文件的最短路径 |
+| [Install.md](Install.md) | 同一套安装流程更长、更逐步的记录 |
 | [1. 环境安装](#1-环境安装) | 固定版本、安装前检查与 7 步安装 |
 | [2. 仓库目录结构](#2-仓库目录结构) | 各部分代码的位置，以及改什么去哪里 |
 | [3. 可调参数](#3-可调参数) | 哪些是固定的，哪些可以放心调 |
@@ -177,8 +178,12 @@ whole_body_tracking/
 │   ├── npy_to_npz.py                重定向 npy 转训练用 npz
 │   ├── append_motion_tail.py        给动作加保持终止姿态的尾帧
 │   ├── verify_motion_npz.py         用正运动学校验 npz（硬门禁）
+│   ├── linkage_quality.py           输出闭链求解的逐帧残差报告
 │   ├── dump_articulation_order.py   打印模型的关节/刚体规范顺序
-│   └── replay_npz.py                在 Isaac Sim 里直接回放参考动作
+│   ├── replay_npz.py                在 Isaac Sim 里直接回放参考动作
+│   ├── export_motion_policy.py      离线 ONNX 导出器的入口
+│   ├── check_deploy_onnx.py         用部署侧配置交叉检查 ONNX metadata
+│   └── verify_parallel_motor_convention.py   交叉检查电机方向与零位
 │
 ├── source/whole_body_tracking/whole_body_tracking/
 │   ├── tasks/tracking/
@@ -199,7 +204,8 @@ whole_body_tracking/
 ├── robot_descriptions/luna-description/   子模块：HU_L04 的 USD、URDF、MJCF 与 mesh
 ├── motions/                         已重定向的 npy 参考动作
 ├── logs/rsl_rl/                     训练产物：checkpoint、TensorBoard、导出的 ONNX
-└── tools/offline_onnx_exporter/     纯策略离线导出 + NPY 组合流水线
+├── tools/offline_onnx_exporter/     纯策略离线导出 + NPY 组合流水线
+└── tests/                           scripts 与导出器的 pytest 测试
 ```
 
 ### 改东西该去哪个文件
@@ -363,17 +369,10 @@ damping   = 2 * DAMPING_RATIO * armature * NATURAL_FREQ
 > 解出来的这 24 个自由度**只用于仿真复位时给出一个不违反闭链约束的位形**，不进入策略的观测和动作。
 > 策略的接口始终是 27 维电机空间。
 
-**省事的做法。** `train.py` 可以直接接受 `.npy`，会先自动完成准备再开训，所以一条命令就能从重定向
-数据走到训练。准备阶段约需一分钟，因为其中两步各要启动一次 Isaac Sim。
-
-```bash
-python scripts/rsl_rl/train.py \
-  --task=Tracking-Flat-HU-L04-Parallel-Deploy-Gravity-v0 \
-  --motion_file /path/to/your_motion.npy \
-  --num_envs 4096 --headless --max_iterations 15000
-```
-
-`--motion_tail_seconds`（默认 10）和 `--motion_max_unreachable_error` 用于调节这个准备过程。
+**省事的做法。** `train.py` 可以直接接受 `.npy`，会先自动完成准备再开训，所以 [4.2](#42-启动训练)
+给出的那一条命令就能从重定向数据走到训练，不需要另外跑准备步骤。准备阶段约需一分钟，因为其中两步
+各要启动一次 Isaac Sim。`--motion_tail_seconds`（默认 10）和 `--motion_max_unreachable_error` 用于
+调节这个准备过程。
 如果要检查或保留中间 `.npz`，可以单独跑同一条流水线——第一次处理某条动作时建议这么做，先把告警
 看清楚再投入长时间训练：
 
@@ -439,7 +438,13 @@ python scripts/rsl_rl/train.py \
 
 ### 4.3 pt 和动作文件放在哪里才能 play
 
-**模型文件**必须放进实验目录：
+**模型文件：直接传路径。** 传相对或绝对文件路径时按原样使用，文件放在哪里都行：
+
+```bash
+--checkpoint /path/to/model_14999.pt
+```
+
+只传文件名或正则属于旧用法，会到 `--load_run` 指定的日志目录下查找；该实验目录名由任务变体固定：
 
 ```
 whole_body_tracking/
@@ -448,14 +453,6 @@ whole_body_tracking/
         └── 2026-08-14_18-07-36/          <- 目录名任意
             └── model_14999.pt            <- 文件名须为 model_<数字>.pt
 ```
-
-**模型文件可以放在任意位置。** 直接向 `--checkpoint` 传入现有相对或绝对文件路径：
-
-```bash
---checkpoint /path/to/model_14999.pt
-```
-
-只传 checkpoint 文件名或正则时，仍按旧行为从 `--load_run` 对应日志目录中查找。
 
 **动作源文件**可以放在任意位置。把训练使用的同一个可信 `.npy` 传给 `play.py`；play 会先执行共享
 准备流水线，再启动回放环境。只有诊断或使用 `replay_npz.py` 时，才需要按 4.1 单独执行
@@ -607,18 +604,6 @@ fork 来源、文件级归因和完整清单见 [THIRD_PARTY_NOTICES.md](THIRD_P
 ---
 
 ## 关于本仓库
-
-### 许可证边界
-
-本仓库是一个 MIT 许可上游项目的修改版。结论写在上文[第六章](#6-许可证)，边界本身如下：
-
-- fork 起点的上游代码保持 [MIT 许可证](LICENCE)，其版权声明原样保留。LimX Dynamics 的修改与新增
-  部分适用 [Apache-2.0](LICENSES/Apache-2.0.txt)。少数文件带有上游自己的 BSD-3-Clause 文件头；
-  fork 来源与文件级归因见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
-- 机器人描述**不**随本仓库分发，来自
-  [luna-description](https://github.com/limxdynamics/luna-description) 子模块，适用 Apache-2.0。
-- `motions/` 下的随仓动作数据与 LimX Dynamics 的其他贡献适用同一份 Apache-2.0，其来源记录见
-  [动作数据清单](motions/README.zh-CN.md)。
 
 ### 贡献与安全报告
 
