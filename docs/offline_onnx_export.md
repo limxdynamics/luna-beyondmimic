@@ -6,8 +6,8 @@ invokes the repository motion-preparation pipeline and writes:
 
 - `policy.onnx`: the deployed policy graph, `obs -> actions`.
 - `reference.txt`: the 102-column DanceLibrary reference trajectory.
-- `param.yaml`: the minimal deployment parameter template that points the controller at the policy
-  and reference.
+- `param.yaml`: the full controller configuration, copied from `LimxDanceSDKHumanoidController`,
+  that points the controller at the policy and reference.
 - `linkage_report.json`: machine-readable linkage residual summary and contiguous bad segments.
 
 ## Supported Configuration

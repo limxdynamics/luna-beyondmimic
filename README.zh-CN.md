@@ -33,34 +33,20 @@ Luna（HU_L04）人形机器人的动作跟踪训练，基于
 
 ## 流程
 
-```text
-retargeted motion.npy  (27 DoF, 50 Hz)
-        │
-        │  prepared automatically: solve ankle + waist linkages ─► 51-DoF closed-loop layout
-        │                          ─► hold final pose ─► forward-kinematics check
-        ▼
-  train.py   Isaac Lab + PPO ─────────────────────────► model.pt
-        │
-        ├──► play.py   replay the policy in Isaac Sim
-        │
-        ▼
-  export_policy_and_reference.py ─► policy.onnx + reference.txt + param.yaml
-```
+<p align="center">
+  <img src="docs/pipeline_zh.png" alt="motion.npy（27 自由度、50 Hz）先自动预处理（解连杆、51 自由度、末帧保持 10 s、FK 校验），再用 train.py 训练、play.py 回放，最后由 export_policy_and_reference.py 导出 policy.onnx、reference.txt、param.yaml 和 linkage_report.json；每一步都输入同一个 .npy" width="100%"/>
+</p>
 
 ## 文档导航
 
-本文覆盖四件事：搭好训练环境、看懂仓库结构、知道哪些参数能调、把一份已重定向的 `.npy` 数据跑成可以
-play 的策略。所有实际踩过的坑集中在[第五章](#5-注意事项)。
+本文覆盖：搭好训练环境、看懂仓库结构、知道哪些参数能调、把一份已重定向的 `.npy` 数据跑成可以 play
+的策略。所有实际踩过的坑集中在[第五章](#5-注意事项)。
 
 | 文档 | 内容 |
 | --- | --- |
 | [QuickStart.zh-CN.md](QuickStart.zh-CN.md) | 从重定向后的 `.npy` 到部署文件的最短路径 |
-| [Install.md](Install.md) | 同一套安装流程更长、更逐步的记录 |
-| [1. 环境安装](#1-环境安装) | 固定版本、安装前检查与 7 步安装 |
-| [2. 仓库目录结构](#2-仓库目录结构) | 各部分代码的位置，以及改什么去哪里 |
-| [3. 可调参数](#3-可调参数) | 哪些是固定的，哪些可以放心调 |
-| [4. 从 npy 数据到 play](#4-从-npy-数据到-play) | 动作转换、训练、checkpoint 与收敛判断 |
-| [5. 注意事项](#5-注意事项) | 实际踩过的坑及解决办法 |
+| [Install.md](Install.md) | [第一章](#1-环境安装)安装流程更长、更逐步的记录 |
+| [docs/offline_onnx_export.md](docs/offline_onnx_export.md) | 导出工具：输入、输出与校验 |
 | [SAFETY.md](SAFETY.md) | 真机使用前必须遵守的运行边界 |
 | [motions/README.zh-CN.md](motions/README.zh-CN.md) | 随仓动作数据：格式、来源与许可 |
 
@@ -149,15 +135,14 @@ cd /path/to/IsaacLab-2.1.0
 python scripts/tutorials/00_sim/create_empty.py --headless
 ```
 
-> **第 5 步最后那条 `pip list` 核对不能省。** `isaaclab.sh` 即使核心包安装失败也会返回成功。应看到
-> `isaaclab`、`isaaclab_assets`、`isaaclab_mimic`、`isaaclab_rl`、`isaaclab_tasks` 共五个。
+> **第 5 步最后那条 `pip list` 核对不能省。** 应看到 `isaaclab`、`isaaclab_assets`、`isaaclab_mimic`、
+> `isaaclab_rl`、`isaaclab_tasks` 共五个；脚本为什么不报错见
+> [坑位二](#坑位二setuptools-移除-pkg_resources导致-isaaclab-核心包静默安装失败)。
 
 第 4 步会把 numpy 从 2.x 降到 1.26.4，属正常行为。
 
 磁盘占用：conda 环境约 17 GB，Isaac Lab 浅克隆 90 MB，安装过程另需约 4 GB 临时空间。空间紧张可用
 `pip cache purge` 清理。
-
-`Install.md` 保留了同一套安装流程更详细的逐步记录。
 
 ---
 
@@ -238,6 +223,10 @@ whole_body_tracking/
 command(54) + base_ang_vel(3) + projected_gravity(3)
             + joint_pos(27) + joint_vel(27) + actions(27) = 141
 ```
+
+<p align="center">
+  <img src="docs/interface_zh.png" alt="141 维观测分为参考指令 54、角速度 3、重力 3、关节位置 27、关节速度 27、上一步动作 27，旁边是 27 维动作；下方是仿真模型的 51 个自由度：27 个驱动电机、6 个踝/腰轴、18 个连杆自由度" width="100%"/>
+</p>
 
 名字里带 **Deploy** 表示已经把下位机拿不到的量全部剔除了——全局位置、需要状态估计的线速度、无传感器
 的连杆自由度；带 **Gravity** 表示保留了 IMU 直接给出的重力方向，这是去掉状态估计后唯一还能直接反映
@@ -355,10 +344,7 @@ damping   = 2 * DAMPING_RATIO * armature * NATURAL_FREQ
 > 加载；恶意文件可能在结构校验开始前执行代码。项目负责人接受该风险，但支持范围仅限 LimX Dynamics
 > 内部生成或验证过的可信动作文件。不要处理未知或不可信来源的 `.npy`。
 
-```
-重定向 .npy  ->  solve_parallel_linkage  ->  npy_to_npz  ->  append_motion_tail
-             ->  verify_motion_npz（门禁）->  train.py    ->  play.py
-```
+具体步骤见[流程图](#流程)。
 
 ### 4.1 转换动作数据
 
@@ -382,7 +368,8 @@ python scripts/prepare_motion.py \
   --output motions/your_motion_parallel_tail10.npz
 ```
 
-**手动逐步的做法**：
+<details>
+<summary><b>手动逐步的做法</b>：自己跑这四步</summary>
 
 ```bash
 # 1  解连杆（启动 Isaac Sim，约 35 秒）
@@ -409,15 +396,21 @@ python scripts/verify_motion_npz.py \
   --robot hu_l04_parallel
 ```
 
+</details>
+
 > 这四步都会跑通，但**沉默不等于没问题**。第 1、3、4 步各有一类必须确认的告警，忽略的代价是训练几
 > 小时后才发现数据有问题。见 [5.2](#52-数据准备阶段)。
 
-**为什么要加尾帧。** 实机上动作播完后，控制器会**一直重复发送最后一帧**，直到操作员切换控制器。但
-训练里从来不存在这个状态——动作放完的瞬间环境就被传送到新的随机起点，终止姿态最多只存在一两帧。结果
-就是机器人在动作结束后站不稳。加 10 秒尾帧就是让策略真正练习「保持终止姿态」。选 10 秒是因为一个
-episode 正好 10 秒，采样器可以把起点落在尾帧内、用一整个 episode 纯粹练站立，再长意义不大。尾帧会
-冻结最后一帧姿态并**把速度全部置零**。部署参考使用同一个 `.npy`，但组合导出器默认只追加 2 秒尾帧；
-如需与训练的 10 秒长度一致，导出时传 `--motion-tail-seconds 10`。
+**为什么要加尾帧。**
+
+<p align="center">
+  <img src="docs/tail_zh.png" alt="22.9 秒的动作片段后接 10 秒末帧保持；10 秒的训练回合从采样时刻开始，有的落在保持段内；真机上最后一帧会一直重复，直到操作员切换控制器" width="100%"/>
+</p>
+
+实机上动作播完后，控制器会**一直重复发送最后一帧**，直到操作员切换控制器；训练里片段一结束回合就
+重置，终止姿态从来没被保持过。尾帧把最后一帧姿态冻结 10 秒并**把速度全部置零**，正好一个 episode
+的长度，采样器可以把起点落在尾帧内、用一整个 episode 练站立。组合导出器默认只追加 2 秒尾帧；如需
+与训练的 10 秒长度一致，导出时传 `--motion-tail-seconds 10`。
 
 ### 4.2 启动训练
 
@@ -454,9 +447,11 @@ whole_body_tracking/
             └── model_14999.pt            <- 文件名须为 model_<数字>.pt
 ```
 
-**动作源文件**可以放在任意位置。把训练使用的同一个可信 `.npy` 传给 `play.py`；play 会先执行共享
-准备流水线，再启动回放环境。只有诊断或使用 `replay_npz.py` 时，才需要按 4.1 单独执行
-`prepare_motion.py` 保留中间 `.npz`。
+走旧用法时，同一实验下有多个 run 就必须显式传 `--load_run`。不带时，play 会自动选**目录名排序最大**
+的那个 run，**而且不会有任何提示**，冒烟测试的模型或别的动作的模型都可能被静默加载。任务提交顺序和
+目录时间戳顺序不一定一致，凭直觉猜会拿错。
+
+**动作源文件**可以放在任意位置：把训练用的同一个可信 `.npy` 传给 `play.py`，它会用同样的方式准备。
 
 ```bash
 python scripts/rsl_rl/play.py \
@@ -468,10 +463,8 @@ python scripts/rsl_rl/play.py \
 
 加 `--video --video_length 500` 可以录一个完整 episode，存到该 run 目录的 `videos/play/`。
 
-每次 play 都会顺带把策略导出成
-`logs/rsl_rl/hu_l04_parallel_deploy_gravity/<run>/exported/policy.onnx`，这是正常行为。部署推荐使用
-组合导出工具：不传 motion 时只生成 `policy.onnx`；输入与训练相同的源 `.npy` 时，一次生成
-`policy.onnx`、`reference.txt`、`param.yaml` 和 `linkage_report.json`；见
+每次 play 都会顺带在 run 目录下写出 `exported/policy.onnx`，这是正常行为。部署请用组合导出工具：
+输入同一个 `.npy`，一次生成[流程图](#流程)里的四个文件；见
 [ONNX 与参考轨迹导出](docs/offline_onnx_export.md)。
 
 #### 可选部署交叉检查
@@ -562,21 +555,14 @@ site-packages 前面**。后果有两个：运行时被外部包覆盖；安装�
 
 ### 5.3 训练与 play 阶段
 
-#### 直接传 checkpoint 路径可避免选错 run
-
-优先用 `--checkpoint /path/to/model.pt`。如果仍走日志目录查找，同一实验下有多个 run 时必须显式传
-`--load_run`。不带时，play 会自动选**目录名排序最大**的那个 run，**而且不会有任何提示**。冒烟测试
-留下的只训了几轮的模型、或者别的动作的模型，都可能被静默加载，看起来却像是加载成功了。另外注意
-**任务提交顺序和目录时间戳顺序不一定一致**——排队晚的任务时间戳反而更大，凭直觉猜会拿错。
-
 #### Isaac Sim 不响应 SIGTERM
 
 退出 play 用 **Ctrl+C**。用 `timeout` 之类发普通信号杀不掉，必要时用 `kill -9`。
 
-#### 不要用 mean_reward 判断训练好坏
+#### 选错 checkpoint 与 mean_reward
 
-见 [4.4](#44-怎么判断训练收敛)。它和 episode 长度耦合，且随课程采样分布变化，跨配置比较会给出完全
-错误的结论。
+都在用到的地方讲过了：选错 run 见 [4.3](#43-pt-和动作文件放在哪里才能-play)，`mean_reward` 为什么会误导
+见 [4.4](#44-怎么判断训练收敛)。
 
 ---
 

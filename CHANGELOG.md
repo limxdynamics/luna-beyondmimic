@@ -55,6 +55,14 @@ Relative to the upstream baseline:
   `tests/test_deploy_config_tracks_description.py` recomputes all of them to fail on drift.
 - Motion registry, checkpoint lookup and artifact handling are local; the upstream Weights &
   Biases integration and CSV ingest paths were removed.
+- README (EN / ZH) figures and consolidation: `docs/pipeline_*.png` replaces the two ASCII
+  pipelines, `docs/interface_*.png` shows the 141/27 policy interface and the 51-DoF breakdown,
+  and `docs/tail_*.png` replaces the long explanation of the 10 s tail. The Documentation table
+  lists only external documents; the step-by-step preparation commands are collapsed; the
+  checkpoint-selection and `mean_reward` gotchas, which repeated sections 4.3 and 4.4, now point
+  there; the `pip list` warning points at gotcha 2 instead of restating it.
+- `docs/offline_onnx_export.md` no longer calls `param.yaml` a minimal template; it is the full
+  `LimxDanceSDKHumanoidController` configuration, as the rest of the documentation says.
 
 ### Removed
 

@@ -34,35 +34,21 @@ submission are out of scope. No other robot or training task is part of the publ
 
 ## Pipeline
 
-```text
-retargeted motion.npy  (27 DoF, 50 Hz)
-        │
-        │  prepared automatically: solve ankle + waist linkages ─► 51-DoF closed-loop layout
-        │                          ─► hold final pose ─► forward-kinematics check
-        ▼
-  train.py   Isaac Lab + PPO ─────────────────────────► model.pt
-        │
-        ├──► play.py   replay the policy in Isaac Sim
-        │
-        ▼
-  export_policy_and_reference.py ─► policy.onnx + reference.txt + param.yaml
-```
+<p align="center">
+  <img src="docs/pipeline_en.png" alt="motion.npy (27 DoF, 50 Hz) is prepared automatically (linkage solve, 51 DoF, 10 s hold, FK gate), trained with train.py, replayed with play.py, and exported by export_policy_and_reference.py to policy.onnx, reference.txt, param.yaml and linkage_report.json; the same .npy feeds every step" width="100%"/>
+</p>
 
 ## Documentation
 
-This README covers four things: setting up the environment, reading the repository layout, knowing
-which parameters are safe to tune, and taking a retargeted `.npy` all the way to a policy you can
-replay. Every gotcha we have actually hit is collected in [section 5](#5-gotchas).
+This README covers setting up the environment, reading the repository layout, knowing which
+parameters are safe to tune, and taking a retargeted `.npy` all the way to a policy you can replay.
+Every gotcha we have actually hit is collected in [section 5](#5-gotchas).
 
 | Document | What it covers |
 | --- | --- |
 | [QuickStart.md](QuickStart.md) | Shortest path from a retargeted `.npy` to the deployment files |
-| [Install.md](Install.md) | A longer, blow-by-blow record of the same install (in Chinese) |
-| [1. Installation](#1-installation) | Pinned versions, preflight checks and a 7-step install |
-| [2. Repository layout](#2-repository-layout) | Where everything lives and where to change what |
-| [3. Tunable parameters](#3-tunable-parameters) | What is fixed and what is safe to tune |
-| [4. From a retargeted `.npy` to `play`](#4-from-a-retargeted-npy-to-play) | Motion conversion, training, checkpoints and convergence |
-| [5. Gotchas](#5-gotchas) | Every issue we have actually hit, with fixes |
+| [Install.md](Install.md) | A longer, blow-by-blow record of the install in [section 1](#1-installation) (in Chinese) |
+| [docs/offline_onnx_export.md](docs/offline_onnx_export.md) | The exporter: inputs, outputs and validation |
 | [SAFETY.md](SAFETY.md) | The approved operating boundary before real-hardware use |
 | [motions/README.md](motions/README.md) | Bundled motion data: schema, provenance and license |
 
@@ -152,16 +138,15 @@ cd /path/to/IsaacLab-2.1.0
 python scripts/tutorials/00_sim/create_empty.py --headless
 ```
 
-> **Do not skip the `pip list` check in step 5.** `isaaclab.sh` returns success even when the core
-> package failed to install. You should see all five of `isaaclab`, `isaaclab_assets`,
-> `isaaclab_mimic`, `isaaclab_rl`, `isaaclab_tasks`.
+> **Do not skip the `pip list` check in step 5.** All five of `isaaclab`, `isaaclab_assets`,
+> `isaaclab_mimic`, `isaaclab_rl` and `isaaclab_tasks` must be listed; see
+> [gotcha 2](#gotcha-2-setuptools-drops-pkg_resources-and-isaaclab-fails-silently) for why the script
+> does not tell you.
 
 Step 4 downgrades numpy from 2.x to 1.26.4. That is expected.
 
 Disk: the conda environment is ~17 GB, the shallow Isaac Lab clone ~90 MB, and installation needs
 another ~4 GB of scratch space. `pip cache purge` frees space if you are tight.
-
-`Install.md` keeps a longer, blow-by-blow record of the same install.
 
 ---
 
@@ -244,6 +229,10 @@ observation and a **27**-dimensional action:
 command(54) + base_ang_vel(3) + projected_gravity(3)
             + joint_pos(27) + joint_vel(27) + actions(27) = 141
 ```
+
+<p align="center">
+  <img src="docs/interface_en.png" alt="The 141 observation values split into reference command 54, base angular velocity 3, gravity 3, joint position 27, joint velocity 27 and last action 27, next to the 27 actions; below, the 51-DoF simulated robot split into 27 driven motors, 6 ankle and waist axes and 18 rod DoF" width="100%"/>
+</p>
 
 **Deploy** in the name means everything the onboard controller cannot produce has already been
 dropped — global position, the linear velocity that would need state estimation, and the linkage
@@ -373,10 +362,7 @@ Assuming you already have a `.npy` retargeted onto Luna. Run everything from the
 > trusted motion files generated or verified inside LimX Dynamics. Do not process `.npy` files from
 > unknown or untrusted sources.
 
-```
-retargeted .npy  ->  solve_parallel_linkage  ->  npy_to_npz  ->  append_motion_tail
-                 ->  verify_motion_npz (gate) ->  train.py   ->  play.py
-```
+The steps are the ones in the [pipeline figure](#pipeline).
 
 ### 4.1 Convert the motion
 
@@ -403,7 +389,8 @@ python scripts/prepare_motion.py \
   --output motions/your_motion_parallel_tail10.npz
 ```
 
-**The long way**, if you want to run the steps yourself:
+<details>
+<summary><b>The long way</b>: run the four steps yourself</summary>
 
 ```bash
 # 1  solve the linkage (launches Isaac Sim, ~35 s)
@@ -430,19 +417,23 @@ python scripts/verify_motion_npz.py \
   --robot hu_l04_parallel
 ```
 
+</details>
+
 > All four commands will run to completion, but **silence is not the same as success**. Steps 1, 3
 > and 4 each emit a class of warning you have to read. Ignoring them costs you the several hours it
 > takes to notice the data was wrong. See [5.2](#52-preparing-motion-data).
 
-**Why the tail.** On hardware the controller **repeats the last reference frame** once the motion
-ends, until an operator switches controller. Training never asks for that: the moment the clip runs
-out, the environment is teleported to a fresh random start time, so the final pose exists for a
-frame or two and is never held. The result is a robot that cannot stand still after the motion
-finishes. A 10 s tail makes the policy practise holding it. Ten seconds matches the episode length,
-so a reset can land inside the tail and spend a whole episode doing nothing but standing; longer
-adds little. The tail freezes the final pose and **zeroes every velocity**. Deployment uses the
-same `.npy`, but the combined exporter appends a 2-second tail by default. Pass
-`--motion-tail-seconds 10` during export when matching the training length is required.
+**Why the tail.**
+
+<p align="center">
+  <img src="docs/tail_en.png" alt="A 22.9 s motion clip followed by a 10 s hold of the final pose; 10 s training episodes start at sampled times, some inside the hold; on the robot the last frame repeats until the operator switches controller" width="100%"/>
+</p>
+
+On hardware the controller **repeats the last reference frame** once the motion ends, until an
+operator switches controller; in training the clip ending resets the episode, so the final pose is
+never held. The tail freezes that pose and **zeroes every velocity** for 10 s, one full episode, so a
+reset can land inside it and practise standing. The combined exporter appends only 2 s by default;
+pass `--motion-tail-seconds 10` during export when matching the training length is required.
 
 ### 4.2 Train
 
@@ -482,10 +473,13 @@ whole_body_tracking/
             └── model_14999.pt            <- must be model_<number>.pt
 ```
 
-**The motion source** can live anywhere. Pass the same trusted `.npy` used for training; `play.py`
-runs the shared preparation pipeline before launching the playback environment. Use
-`scripts/prepare_motion.py` only when you need to retain the intermediate `.npz` for diagnostics
-or `replay_npz.py`.
+With the legacy form, always pass `--load_run` when an experiment contains more than one run.
+Without it, `play` silently takes the **alphabetically last** run directory, so a smoke-test
+checkpoint or a policy for another motion loads and looks like a success. Submission order and
+directory timestamp order do not have to agree, so guessing gets it wrong.
+
+**The motion source** can live anywhere: pass the same trusted `.npy` used for training, and
+`play.py` prepares it the same way.
 
 ```bash
 python scripts/rsl_rl/play.py \
@@ -497,12 +491,9 @@ python scripts/rsl_rl/play.py \
 
 Add `--video --video_length 500` to record one full episode into that run's `videos/play/`.
 
-Every `play` also exports the policy to
-`logs/rsl_rl/hu_l04_parallel_deploy_gravity/<run>/exported/policy.onnx`. That is expected. For
-deployment, prefer the combined exporter, which accepts the same source `.npy` as training and
-writes `policy.onnx`, `reference.txt`, `param.yaml`, and `linkage_report.json` together. Omitting
-the motion exports only `policy.onnx`; see
-[ONNX and reference export](docs/offline_onnx_export.md).
+Every `play` also writes `exported/policy.onnx` into the run directory. That is expected. For
+deployment use the combined exporter, which takes the same `.npy` and writes all four files in the
+[pipeline figure](#pipeline); see [ONNX and reference export](docs/offline_onnx_export.md).
 
 #### Optional deployment cross-checks
 
@@ -597,24 +588,15 @@ This is a system-level issue unrelated to this install.
 
 ### 5.3 Training and replay
 
-#### Direct checkpoint paths avoid ambiguous run selection
-
-Prefer `--checkpoint /path/to/model.pt`. If you use the legacy log-directory lookup instead, always
-pass `--load_run` when an experiment contains more than one run. Without it, `play` silently takes
-the **alphabetically last** run directory and says nothing about it. A smoke-test checkpoint from a
-handful of iterations, or a policy for an entirely different motion, will load and look like a
-success. Note also that **submission order and directory timestamp order do not have to agree** — a
-job that queued later carries the larger timestamp, so guessing gets it wrong.
-
 #### Isaac Sim ignores SIGTERM
 
 Quit `play` with **Ctrl+C**. `timeout` and friends send signals it will not act on; use `kill -9`
 if you have to.
 
-#### `mean_reward` does not tell you whether training is going well
+#### Checkpoint selection and `mean_reward`
 
-See [4.4](#44-reading-convergence). It is coupled to episode length and moves with the sampling
-distribution, so comparing it across configurations gives outright wrong conclusions.
+Both are covered where they come up: [4.3](#43-where-the-checkpoint-and-the-motion-have-to-live)
+for picking the wrong run, [4.4](#44-reading-convergence) for why `mean_reward` misleads.
 
 ---
 
