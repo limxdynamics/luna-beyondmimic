@@ -16,6 +16,8 @@
 
 # LimxMimic — Luna (HU_L04) 动作跟踪
 
+> **Luna 人形机器人开源生态的一部分。** 上手路线和其他 Luna 仓库：[Luna 快速上手](https://github.com/limxdynamics/limxdynamics/blob/main/doc/quickstart_cn.md#luna)。
+
 Luna（HU_L04）人形机器人的动作跟踪训练，基于
 [BeyondMimic](https://beyondmimic.github.io/)
 （[论文](https://arxiv.org/abs/2508.08241)、[视频](https://youtu.be/RS_MtKVIAzY)）。

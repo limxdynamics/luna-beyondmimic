@@ -16,6 +16,8 @@
 
 # LimxMimic — Motion Tracking for Luna (HU_L04)
 
+> **Part of the Luna humanoid open-source ecosystem.** Where to start and the other Luna repositories: [Luna quick start](https://github.com/limxdynamics/limxdynamics/blob/main/doc/quickstart.md#luna).
+
 Motion tracking training for the Luna (HU_L04) humanoid, built on
 [BeyondMimic](https://beyondmimic.github.io/)
 ([paper](https://arxiv.org/abs/2508.08241), [video](https://youtu.be/RS_MtKVIAzY)).
