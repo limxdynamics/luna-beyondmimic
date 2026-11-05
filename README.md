@@ -34,6 +34,17 @@ submission are out of scope. No other robot or training task is part of the publ
 - **Deployment-ready export.** `policy.onnx` (141-dim observation, 27 actions), a 50 Hz reference trajectory and a complete `param.yaml`, plus scripts that cross-check them against the deployment configuration.
 - **Try it end to end.** Ships with a 22.9 s dance motion collected by LimX Dynamics.
 
+## What the policy learns
+
+<p align="center">
+  <img src="docs/tracking_targets.gif" alt="Luna dancing the bundled reference motion, with the 15 tracked bodies drawn as blue points with short motion trails" width="600"/>
+</p>
+
+The policy learns to make Luna follow a reference motion. The blue points are the 15 bodies
+([`parallel_env_cfg.py`](source/whole_body_tracking/whole_body_tracking/tasks/tracking/config/hu_l04/parallel_env_cfg.py)) whose position, orientation and velocity the tracking rewards
+compare with the reference, anchored at `waist_pitch_link`. The clip is 10 s of the bundled dance
+replayed kinematically, not a policy rollout.
+
 ## Pipeline
 
 <p align="center">

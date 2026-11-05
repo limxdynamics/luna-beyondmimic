@@ -33,6 +33,16 @@ Luna（HU_L04）人形机器人的动作跟踪训练，基于
 - **导出即可部署。** 生成 `policy.onnx`（141 维观测、27 维动作）、50 Hz 参考轨迹和完整的 `param.yaml`，并附带与部署配置交叉校验的脚本。
 - **开箱即可跑通全流程。** 随仓附带一段 22.9 秒、由 LimX Dynamics 采集的舞蹈动作。
 
+## 策略学什么
+
+<p align="center">
+  <img src="docs/tracking_targets.gif" alt="Luna 跳随仓附带的参考舞蹈，跟踪的 15 个身体部位以蓝点和短轨迹标出" width="600"/>
+</p>
+
+策略要学的是让 Luna 跟上参考动作。蓝点是训练任务跟踪的 15 个身体部位（[`parallel_env_cfg.py`](source/whole_body_tracking/whole_body_tracking/tasks/tracking/config/hu_l04/parallel_env_cfg.py)），
+跟踪奖励逐一比较它们与参考动作的位置、姿态和速度，锚点为 `waist_pitch_link`。图中是随仓舞蹈中的
+10 秒，按参考动作做的运动学回放，不是策略的输出。
+
 ## 流程
 
 <p align="center">

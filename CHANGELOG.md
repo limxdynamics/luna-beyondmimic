@@ -61,6 +61,8 @@ Relative to the upstream baseline:
   lists only external documents; the step-by-step preparation commands are collapsed; the
   checkpoint-selection and `mean_reward` gotchas, which repeated sections 4.3 and 4.4, now point
   there; the `pip list` warning points at gotcha 2 instead of restating it.
+- A "What the policy learns" section in both READMEs: `docs/tracking_targets.gif`, 10 s of the
+  bundled dance replayed kinematically with the 15 tracked bodies marked.
 - `docs/offline_onnx_export.md` no longer calls `param.yaml` a minimal template; it is the full
   `LimxDanceSDKHumanoidController` configuration, as the rest of the documentation says.
 

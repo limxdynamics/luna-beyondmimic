@@ -31,3 +31,4 @@ docs/interface_en.png -filter -diff -merge -text
 docs/interface_zh.png -filter -diff -merge -text
 docs/tail_en.png -filter -diff -merge -text
 docs/tail_zh.png -filter -diff -merge -text
+docs/tracking_targets.gif -filter -diff -merge -text
