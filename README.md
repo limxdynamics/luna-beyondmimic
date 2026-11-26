@@ -12,6 +12,8 @@
 [![LimX modifications](https://img.shields.io/badge/LimX_modifications-Apache--2.0-blue.svg)](LICENSES/Apache-2.0.txt)
 [![Robot description](https://img.shields.io/badge/robot_description-Apache--2.0-blue.svg)](https://github.com/limxdynamics/luna-description)
 [![Fork of HybridRobotics/whole_body_tracking](https://img.shields.io/badge/fork%20of-HybridRobotics%2Fwhole__body__tracking-2f6feb)](https://github.com/HybridRobotics/whole_body_tracking)
+[![Hugging Face](https://img.shields.io/badge/Hugging%20Face-luna--description-FFD21E?logo=huggingface&logoColor=black)](https://huggingface.co/limxdynamics/luna-description)
+[![Try in browser](https://img.shields.io/badge/Try%20in%20browser-Luna%20Viewer-FF9D00?logo=huggingface&logoColor=white)](https://huggingface.co/spaces/limxdynamics/luna-viewer)
 [![WeChat Community](https://img.shields.io/badge/WeChat-Developer%20Community-07C160?logo=wechat&logoColor=white)](https://github.com/limxdynamics/limxdynamics/blob/main/doc/wechat_qr.png)
 
 <p align="center"><sub>For partnership and procurement inquiries, contact <a href="mailto:opensource@limxdynamics.com">opensource@limxdynamics.com</a></sub></p>

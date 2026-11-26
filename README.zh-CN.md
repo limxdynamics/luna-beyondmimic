@@ -12,6 +12,8 @@
 [![LimX 修改部分](https://img.shields.io/badge/LimX_modifications-Apache--2.0-blue.svg)](LICENSES/Apache-2.0.txt)
 [![机器人描述](https://img.shields.io/badge/robot_description-Apache--2.0-blue.svg)](https://github.com/limxdynamics/luna-description)
 [![Fork of HybridRobotics/whole_body_tracking](https://img.shields.io/badge/fork%20of-HybridRobotics%2Fwhole__body__tracking-2f6feb)](https://github.com/HybridRobotics/whole_body_tracking)
+[![Hugging Face](https://img.shields.io/badge/Hugging%20Face-luna--description-FFD21E?logo=huggingface&logoColor=black)](https://huggingface.co/limxdynamics/luna-description)
+[![在线体验](https://img.shields.io/badge/%E5%9C%A8%E7%BA%BF%E4%BD%93%E9%AA%8C-Luna%20Viewer-FF9D00?logo=huggingface&logoColor=white)](https://huggingface.co/spaces/limxdynamics/luna-viewer)
 [![微信开发者社区](https://img.shields.io/badge/%E5%BE%AE%E4%BF%A1-%E5%BC%80%E5%8F%91%E8%80%85%E7%A4%BE%E5%8C%BA-07C160?logo=wechat&logoColor=white)](https://github.com/limxdynamics/limxdynamics/blob/main/doc/wechat_qr.png)
 
 <p align="center"><sub>合作采购请联系 <a href="mailto:opensource@limxdynamics.com">opensource@limxdynamics.com</a></sub></p>
